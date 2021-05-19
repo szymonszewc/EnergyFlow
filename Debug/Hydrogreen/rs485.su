@@ -1,0 +1,8 @@
+rs485.c:62:6:rs485_init	8	static
+rs485.c:72:6:rs485_step	8	static
+rs485.c:82:13:sendData	8	static,ignoring_inline_asm
+rs485.c:118:13:receiveData	16	static,ignoring_inline_asm
+rs485.c:179:6:HAL_UART_RxCpltCallback	16	static
+rs485.c:195:13:prepareNewDataToSend	16	static
+rs485.c:232:13:processReceivedData	16	static
+rs485.c:246:13:resetActData	4	static
