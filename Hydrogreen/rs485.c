@@ -82,7 +82,7 @@ void rs485_step(void)
 static void sendData(void)
 {
 
-  static uint16_t cntEndOfTxTick;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
+  static uint16_t cntEndOfTxTick=0;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
 
   //Sprawdz czy wyslano cala ramke danych
   if (posInTxTab < TX_FRAME_LENGHT)
@@ -118,8 +118,8 @@ static void sendData(void)
 static void receiveData(void)
 {
 
-  static uint32_t rejectedFramesInRow;							//Zmienna przechowujaca liczbe straconych ramek z rzedu
-  static uint32_t cntEndOfRxTick;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
+  static uint32_t rejectedFramesInRow=0;							//Zmienna przechowujaca liczbe straconych ramek z rzedu
+  static uint32_t cntEndOfRxTick=0;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
 
   //Sprawdz czy otrzymano nowe dane
   if (!intRxCplt)
@@ -155,8 +155,8 @@ static void receiveData(void)
 	}
       else
 	{
-
-	  rejectedFramesInRow++;
+    	  processReceivedData();
+	//  rejectedFramesInRow++;
 
 	  //Jezeli odrzucono wiecej niz 50 ramek z rzedu uznaj ze tranmisja zostala zerwana
 	  if (rejectedFramesInRow > 50)
@@ -197,7 +197,7 @@ static void prepareNewDataToSend(void)
 
   uint8_t j = 0;
 
-  dataToTx[j] = VALUES.FC_TEMP.array[0];
+/*  dataToTx[j] = VALUES.FC_TEMP.array[0];
   dataToTx[++j] = VALUES.FC_TEMP.array[1];
   dataToTx[++j] = VALUES.FC_TEMP.array[2];
   dataToTx[++j] = VALUES.FC_TEMP.array[3];
@@ -216,7 +216,27 @@ static void prepareNewDataToSend(void)
   dataToTx[++j] = 2;
   dataToTx[++j] = 2;
   dataToTx[++j] = emergency;
-  dataToTx[++j] = EOT_BYTE;
+  dataToTx[++j] = EOT_BYTE;*/
+    dataToTx[j] = 1;
+    dataToTx[++j] = 2;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 2;
+    dataToTx[++j] = 0;
+    dataToTx[++j] = 3;
+    dataToTx[++j] = 3;
 
   //OBLICZ SUME KONTROLNA
   uint8_t calculatedCrcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataToTx, (TX_FRAME_LENGHT - 2) );

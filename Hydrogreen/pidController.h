@@ -17,9 +17,9 @@ extern float error;
 extern float iError;
 extern float dError;
 extern float lastError;
-extern uint8_t Kp;
-extern uint8_t Ki;
-extern uint8_t Kd;
+extern float Kp;
+extern float Ki;
+extern float Kd;
 
 void PIDstep();
 

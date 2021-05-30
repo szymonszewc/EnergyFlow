@@ -16,9 +16,9 @@
  float iError=0;
  float dError=0;
  float lastError=0;
- uint8_t Kp=2;
- uint8_t Ki=1;
- uint8_t Kd=2;
+ float Kp=2;
+ float Ki=1;
+ float Kd=2;
  static uint32_t value=0;
 
 

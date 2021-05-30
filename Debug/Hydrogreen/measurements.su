@@ -1,3 +1,4 @@
-measurements.c:17:6:adc_init	8	static
-measurements.c:22:13:calculateValues	16	static
-measurements.c:29:6:adc_step	8	static
+measurements.c:21:6:adc_init	8	static
+measurements.c:32:13:calculateValues	4	static
+measurements.c:43:13:averaging_Values	4	static
+measurements.c:54:6:adc_step	8	static

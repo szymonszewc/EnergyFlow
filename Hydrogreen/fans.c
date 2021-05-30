@@ -33,17 +33,18 @@ void fansStep(void)
 void doCalculations(void)   //co 150 ms
 {
 	sampleTime++;
-	if (sampleTime>=150)
+	if (sampleTime>=150)	//oblicz predkosc obrotowa w rpm
 	{
 	FANS.rpm_1=pulses_1*200;
 	FANS.rpm_2=pulses_2*200; //200 dla 150 ms okresu
-	pulses_1=0;
+	pulses_1=0;		//zeruj impulsy
 	pulses_2=0;
-	sampleTime=0;
+	sampleTime=0;	//zeruj czas pomiaru
 	}
 }
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	//Zlicza impulsy poszczegolnych wentylatorow
 	switch(GPIO_Pin)
 	{
 	case fan_1_PIN:

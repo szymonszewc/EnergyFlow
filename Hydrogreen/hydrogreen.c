@@ -33,7 +33,7 @@
 */
 static void hydrogreen_init(void)
 {
-  watchdog_init();
+	watchdog_init();
     timers_init();
     rs485_init();
     adc_init();
