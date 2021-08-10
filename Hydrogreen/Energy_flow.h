@@ -11,10 +11,9 @@
 
 typedef struct
 {
-	uint32_t charging;
-}   EnergyFlow;
+  uint32_t charging;
+} EnergyFlow;
 extern EnergyFlow hydros;
-
 
 void energyflow_init(void);
 void energyflow_step(void);

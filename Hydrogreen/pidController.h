@@ -9,17 +9,30 @@
 
 #include <stdint-gcc.h>
 
-
-extern uint32_t controlValue;
-extern float setTemp;
-extern float fcTemp;
-extern float error;
-extern float iError;
-extern float dError;
-extern float lastError;
-extern float Kp;
-extern float Ki;
-extern float Kd;
-
+void PID_init();
 void PIDstep();
 
+typedef struct
+{
+  float setValue;
+  float measurement;
+  float prevMeasurement;
+  float error;
+  float iError;
+  float dError;
+  float lastError;
+  float Kp;
+  float Ki;
+  float Kd;
+  float proportional;
+  float integrator;
+  float differentator;
+  float integratorMax;
+  float integratorMin;
+  float controlMax;
+  float controlMin;
+  float PIDtime;
+  float PIDtimeFactor;
+  uint32_t controlValue;
+} PID_struct;
+extern PID_struct FC_T_PID;

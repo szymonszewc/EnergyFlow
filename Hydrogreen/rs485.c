@@ -1,12 +1,12 @@
 /**
-* @file rs485.c
-* @brief Biblioteka do obslugi komunikacji UART <-> RS485 <-> UART
-* @author Piotr Durakiewicz
-* @date 08.12.2020
-* @todo
-* @bug
-* @copyright 2020 HYDROGREEN TEAM
-*/
+ * @file rs485.c
+ * @brief Biblioteka do obslugi komunikacji UART <-> RS485 <-> UART
+ * @author Piotr Durakiewicz
+ * @date 08.12.2020
+ * @todo
+ * @bug
+ * @copyright 2020 HYDROGREEN TEAM
+ */
 
 #include "rs485.h"
 #include "measurements.h"
@@ -17,25 +17,27 @@
 // ******************************************************************************************************************************************************** //
 
 #define UART_PORT_RS485 		huart2
-#define TX_FRAME_LENGHT 		21             	///< Dlugosc wysylanej ramki danych (z suma CRC)
+#define TX_FRAME_LENGHT 		21		         	///< Dlugosc wysylanej ramki danych (z suma CRC)
 #define RX_FRAME_LENGHT 		6					///< Dlugosc otrzymywanej ramki danych (z suma CRC)
 #define EOT_BYTE				0x17				///< Bajt wskazujacy na koniec ramki
 
 // ******************************************************************************************************************************************************** //
 
-volatile static uint8_t dataFromRx[RX_FRAME_LENGHT]; 				///< Tablica w ktorej zawarte sa nieprzetworzone przychodzace dane
-volatile static uint16_t posInRxTab;						///< Aktualna pozycja w tabeli wykorzystywanej do odbioru danych
-volatile static uint8_t intRxCplt; 						///< Flaga informujaca o otrzymaniu nowego bajtu (gdy 1 - otrzymanowy nowy bajt)
-static uint8_t dataToTx[TX_FRAME_LENGHT]; 					///< Tablica w ktorej zawarta jest ramka danych do wyslania
-static uint16_t posInTxTab;							///< Aktualna pozycja w tabeli wykorzystywanej do wysylania danych
-uint8_t rs485_flt = RS485_NEW_DATA_TIMEOUT;					///< Zmienna przechowujaca aktualny kod bledu magistrali
-uint8_t emergency=0;
+volatile static uint8_t dataFromRx[RX_FRAME_LENGHT]; ///< Tablica w ktorej zawarte sa nieprzetworzone przychodzace dane
+volatile static uint16_t posInRxTab = 0; ///< Aktualna pozycja w tabeli wykorzystywanej do odbioru danych
+volatile static uint8_t intRxCplt; ///< Flaga informujaca o otrzymaniu nowego bajtu (gdy 1 - otrzymanowy nowy bajt)
+static uint8_t dataToTx[TX_FRAME_LENGHT]; ///< Tablica w ktorej zawarta jest ramka danych do wyslania
+static uint16_t posInTxTab = 0;	///< Aktualna pozycja w tabeli wykorzystywanej do wysylania danych
+uint8_t rs485_flt = RS485_NEW_DATA_TIMEOUT;///< Zmienna przechowujaca aktualny kod bledu magistrali
+uint8_t emergency = 0;
+uint8_t SumaKontrolnaBoKtosMimeczyDupe = 0;
+uint32_t rejectedFramesInRow = 0;
 // ******************************************************************************************************************************************************** //
 
 /**
-* @struct RS485_BUFFER
-* @brief Struktura zawierajaca bufory wykorzystywane do transmisji danych
-*/
+ * @struct RS485_BUFFER
+ * @brief Struktura zawierajaca bufory wykorzystywane do transmisji danych
+ */
 typedef struct
 {
   uint8_t tx;
@@ -43,7 +45,7 @@ typedef struct
 } RS485_BUFFER;
 static RS485_BUFFER RS485_BUFF;
 
-RS485_RECEIVED_VERIFIED_DATA RS485_RX_VERIFIED_DATA; 				///< Struktura w ktorej zawarte sa SPRAWDZONE przychodzace dane
+RS485_RECEIVED_VERIFIED_DATA RS485_RX_VERIFIED_DATA; ///< Struktura w ktorej zawarte sa SPRAWDZONE przychodzace dane
 
 // ******************************************************************************************************************************************************** //
 
@@ -56,19 +58,84 @@ static void resetActData(void);
 // ******************************************************************************************************************************************************** //
 
 /**
-* @fn rs485_init(void)
-* @brief Inicjalizacja magistrali RS-485, umiescic wewnatrz hydrogreen_init(void)
-*/
+ * @fn rs485_init(void)
+ * @brief Inicjalizacja magistrali RS-485, umiescic wewnatrz hydrogreen_init(void)
+ */
+uint8_t crc_calc(void)
+{
+  uint8_t crcSumOnMCU = 0xFF;
+  uint8_t xbit, data1 = 1;
+#define polynomial 0x7;
+
+  for (uint8_t l = 0; l < RX_FRAME_LENGHT - 1; l++)
+    {
+      uint8_t data = dataFromRx[l];
+      xbit = data1 << 7;
+      for (uint8_t k = sizeof(RX_FRAME_LENGHT - 1) * 8; k > 0; --k) // obliczanie wartosci najbardziej znaczacego bitu
+	{
+	  if (crcSumOnMCU & 0x80)    //jesli najbardziej znaczacy bit = 1
+	    {
+	      crcSumOnMCU = (crcSumOnMCU << 1) ^ polynomial
+	      ; //XOR i leftshift
+	    }
+	  else
+	    { //jesli = 0
+	      crcSumOnMCU = (crcSumOnMCU << 1); //leftshift
+	    }
+	  if (data & xbit)
+	    {
+	      crcSumOnMCU = crcSumOnMCU ^ polynomial
+	      ;
+	    }
+	  xbit >>= 1;
+	}
+    }
+  return crcSumOnMCU;
+
+}
+
+uint8_t crc_calc_TX(void)
+{
+  uint8_t crcSumOnMCUTX = 0xFF;
+  uint8_t xbit, data1 = 1;
+#define polynomial 0x7;
+
+  for (uint8_t l = 0; l < TX_FRAME_LENGHT - 1; l++)
+    {
+      uint8_t data = dataToTx[l];
+      xbit = data1 << 7;
+      for (uint8_t k = sizeof(TX_FRAME_LENGHT - 1) * 8; k > 0; --k) // obliczanie wartosci najbardziej znaczacego bitu
+	{
+	  if (crcSumOnMCUTX & 0x80)    //jesli najbardziej znaczacy bit = 1
+	    {
+	      crcSumOnMCUTX = (crcSumOnMCUTX << 1) ^ polynomial
+	      ; //XOR i leftshift
+	    }
+	  else
+	    { //jesli = 0
+	      crcSumOnMCUTX = (crcSumOnMCUTX << 1); //leftshift
+	    }
+	  if (data & xbit)
+	    {
+	      crcSumOnMCUTX = crcSumOnMCUTX ^ polynomial
+	      ;
+	    }
+	  xbit >>= 1;
+	}
+    }
+  return crcSumOnMCUTX;
+
+}
 void rs485_init(void)
 {
-  HAL_UART_Receive_DMA(&UART_PORT_RS485, &RS485_BUFF.rx, 1);				//Rozpocznij nasluchiwanie
-  prepareNewDataToSend();								//Przygotuj nowy pakiet danych
+  HAL_UART_Receive_DMA(&UART_PORT_RS485, &RS485_BUFF.rx, 1); //Rozpocznij nasluchiwanie
+  prepareNewDataToSend();			//Przygotuj nowy pakiet danych
 }
 
 /**
-* @fn rs485_step(void)
-* @brief Funkcja obslugujaca magistrale, umiescic wewnatrz hydrogreen_step(void)
-*/
+ * @fn rs485_step(void)
+ * @brief Funkcja obslugujaca magistrale, umiescic wewnatrz hydrogreen_step(void)
+ */
 void rs485_step(void)
 {
   receiveData();
@@ -76,13 +143,13 @@ void rs485_step(void)
 }
 
 /**
-* @fn sendData(void)
-* @brief Funkcja ktorej zadaniem jest obsluga linii TX, powinna zostac umieszczona w wewnatrz rs485_step()
-*/
+ * @fn sendData(void)
+ * @brief Funkcja ktorej zadaniem jest obsluga linii TX, powinna zostac umieszczona w wewnatrz rs485_step()
+ */
 static void sendData(void)
 {
 
-  static uint16_t cntEndOfTxTick=0;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
+  static uint16_t cntEndOfTxTick = 0;//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
 
   //Sprawdz czy wyslano cala ramke danych
   if (posInTxTab < TX_FRAME_LENGHT)
@@ -112,14 +179,14 @@ static void sendData(void)
 }
 
 /**
-* @fn receiveData(void)
-* @brief Funkcja ktorej zadaniem jest obsluga linii RX, umiescic wewnatrz rs485_step()
-*/
+ * @fn receiveData(void)
+ * @brief Funkcja ktorej zadaniem jest obsluga linii RX, umiescic wewnatrz rs485_step()
+ */
 static void receiveData(void)
 {
 
-  static uint32_t rejectedFramesInRow=0;							//Zmienna przechowujaca liczbe straconych ramek z rzedu
-  static uint32_t cntEndOfRxTick=0;							//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
+  //static uint32_t rejectedFramesInRow=0;							//Zmienna przechowujaca liczbe straconych ramek z rzedu
+  static uint32_t cntEndOfRxTick = 0;//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
 
   //Sprawdz czy otrzymano nowe dane
   if (!intRxCplt)
@@ -144,10 +211,12 @@ static void receiveData(void)
       posInRxTab = 0;
 
       //OBLICZ SUME KONTROLNA
-      uint8_t crcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataFromRx, (RX_FRAME_LENGHT - 2));
+      //uint8_t crcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataFromRx, (RX_FRAME_LENGHT - 2));
+      uint8_t crcSumOnMCU = crc_calc();
 
       //Sprawdz czy sumy kontrolne oraz bajt EOT (End Of Tranmission) sie zgadzaja
-      if ( (dataFromRx[RX_FRAME_LENGHT - 2] == EOT_BYTE) && (crcSumOnMCU == dataFromRx[RX_FRAME_LENGHT - 1]) )
+      if ((dataFromRx[RX_FRAME_LENGHT - 2] == EOT_BYTE)
+	  && (crcSumOnMCU == dataFromRx[RX_FRAME_LENGHT - 1]))
 	{
 	  processReceivedData();
 	  rs485_flt = RS485_FLT_NONE;
@@ -155,8 +224,7 @@ static void receiveData(void)
 	}
       else
 	{
-    	  processReceivedData();
-	//  rejectedFramesInRow++;
+	  rejectedFramesInRow++;
 
 	  //Jezeli odrzucono wiecej niz 50 ramek z rzedu uznaj ze tranmisja zostala zerwana
 	  if (rejectedFramesInRow > 50)
@@ -165,7 +233,6 @@ static void receiveData(void)
 	      rs485_flt = RS485_NEW_DATA_TIMEOUT;
 	    }
 	}
-
       //Wyczysc bufor odbiorczy
       for (uint8_t i = 0; i < RX_FRAME_LENGHT; i++)
 	{
@@ -174,84 +241,90 @@ static void receiveData(void)
 
       __enable_irq();
     }
+  if (cntEndOfRxTick > 100 * RX_FRAME_LENGHT)
+    {
+      rs485_flt = RS485_NEW_DATA_TIMEOUT;
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-  HAL_UART_Receive_DMA(&UART_PORT_RS485, &RS485_BUFF.rx, 1);			//Ponownie rozpocznij nasluchiwanie nasluchiwanie
 
-  intRxCplt = 1;								//Ustaw flage informujaca o otrzymaniu nowych danych
+  HAL_UART_Receive_DMA(&UART_PORT_RS485, &RS485_BUFF.rx, 1); //Ponownie rozpocznij nasluchiwanie nasluchiwanie
 
-  if (posInRxTab > RX_FRAME_LENGHT) posInRxTab = 0;				//Zabezpieczenie przed wyjsciem poza zakres tablicy
+  intRxCplt = 1;	//Ustaw flage informujaca o otrzymaniu nowych danych
 
-  dataFromRx[posInRxTab] = RS485_BUFF.rx;					//Przypisz otrzymany bajt do analizowanej tablicy
+  if (posInRxTab > RX_FRAME_LENGHT)
+    posInRxTab = 0;	//Zabezpieczenie przed wyjsciem poza zakres tablicy
+
+  dataFromRx[posInRxTab] = RS485_BUFF.rx;//Przypisz otrzymany bajt do analizowanej tablicy
   posInRxTab++;
 }
 
 /**
-* @fn prepareNewDataToSend(void)
-* @brief Funkcja przygotowujaca dane do wysylki, wykorzystana wewnatrz sendData(void)
-*/
+ * @fn prepareNewDataToSend(void)
+ * @brief Funkcja przygotowujaca dane do wysylki, wykorzystana wewnatrz sendData(void)
+ */
 static void prepareNewDataToSend(void)
 {
 
   uint8_t j = 0;
-
-/*  dataToTx[j] = VALUES.FC_TEMP.array[0];
-  dataToTx[++j] = VALUES.FC_TEMP.array[1];
-  dataToTx[++j] = VALUES.FC_TEMP.array[2];
-  dataToTx[++j] = VALUES.FC_TEMP.array[3];
+  dataToTx[j] = emergency;
   dataToTx[++j] = VALUES.FC_V.array[0];
   dataToTx[++j] = VALUES.FC_V.array[1];
   dataToTx[++j] = VALUES.FC_V.array[2];
   dataToTx[++j] = VALUES.FC_V.array[3];
-  dataToTx[++j] = VALUES.SC_V.array[0];
-  dataToTx[++j] = VALUES.SC_V.array[1];
-  dataToTx[++j] = VALUES.SC_V.array[2];
-  dataToTx[++j] = VALUES.SC_V.array[3];
+  dataToTx[++j] = VALUES.FC_TEMP.array[0];
+  dataToTx[++j] = VALUES.FC_TEMP.array[1];
+  dataToTx[++j] = VALUES.FC_TEMP.array[2];
+  dataToTx[++j] = VALUES.FC_TEMP.array[3];
   dataToTx[++j] = VALUES.SC_C.array[0];
   dataToTx[++j] = VALUES.SC_C.array[1];
   dataToTx[++j] = VALUES.SC_C.array[2];
   dataToTx[++j] = VALUES.SC_C.array[3];
+  dataToTx[++j] = VALUES.SC_V.array[0];
+  dataToTx[++j] = VALUES.SC_V.array[1];
+  dataToTx[++j] = VALUES.SC_V.array[2];
+  dataToTx[++j] = VALUES.SC_V.array[3];
   dataToTx[++j] = 2;
   dataToTx[++j] = 2;
-  dataToTx[++j] = emergency;
-  dataToTx[++j] = EOT_BYTE;*/
-    dataToTx[j] = 1;
-    dataToTx[++j] = 2;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 2;
-    dataToTx[++j] = 0;
-    dataToTx[++j] = 3;
-    dataToTx[++j] = 3;
 
+  /*dataToTx[j] = 1;
+   dataToTx[++j] = 2;
+   dataToTx[++j] = 3;
+   dataToTx[++j] = 4;
+   dataToTx[++j] = 5;
+   dataToTx[++j] = 6;
+   dataToTx[++j] = 7;
+   dataToTx[++j] = 8;
+   dataToTx[++j] = 9;
+   dataToTx[++j] = 10;
+   dataToTx[++j] = 11;
+   dataToTx[++j] = 12;
+   dataToTx[++j] = 13;
+   dataToTx[++j] = 14;
+   dataToTx[++j] = 15;
+   dataToTx[++j] = 16;
+   dataToTx[++j] = 17;
+   dataToTx[++j] = 18;
+   dataToTx[++j] = 19;
+   dataToTx[++j] = emergency;*/
+  dataToTx[++j] = EOT_BYTE;
   //OBLICZ SUME KONTROLNA
-  uint8_t calculatedCrcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataToTx, (TX_FRAME_LENGHT - 2) );
+  //uint8_t calculatedCrcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataToTx, (TX_FRAME_LENGHT - 2) );
+  uint8_t calculatedCrcSumOnMCU = crc_calc_TX();
 
+  SumaKontrolnaBoKtosMimeczyDupe = crc_calc_TX();
   //Wrzuc obliczona sume kontrolna na koniec wysylanej tablicy
   dataToTx[TX_FRAME_LENGHT - 1] = calculatedCrcSumOnMCU;
 }
 
 /**
-* @fn processReveivedData()
-* @brief Funkcja przypisujaca odebrane dane do zmiennych docelowych
-*/
+ * @fn processReveivedData()
+ * @brief Funkcja przypisujaca odebrane dane do zmiennych docelowych
+ */
 static void processReceivedData(void)
 {
-
   uint8_t i = 0;
   RS485_RX_VERIFIED_DATA.motorPWM = dataFromRx[i];
   RS485_RX_VERIFIED_DATA.mode = dataFromRx[++i];
@@ -260,13 +333,13 @@ static void processReceivedData(void)
 }
 
 /**
-* @fn resetActData
-* @brief Zerowanie zmiennych docelowych (odbywa sie m.in w przypadku zerwania transmisji)
-*/
+ * @fn resetActData
+ * @brief Zerowanie zmiennych docelowych (odbywa sie m.in w przypadku zerwania transmisji)
+ */
 static void resetActData(void)
 {
-	  RS485_RX_VERIFIED_DATA.motorPWM = 0;
-	  RS485_RX_VERIFIED_DATA.mode = 0;
-	  RS485_RX_VERIFIED_DATA.scOn = 0;
-	  RS485_RX_VERIFIED_DATA.emergencyScenario = 0;
+  RS485_RX_VERIFIED_DATA.motorPWM = 0;
+  RS485_RX_VERIFIED_DATA.mode = 0;
+  RS485_RX_VERIFIED_DATA.scOn = 0;
+  RS485_RX_VERIFIED_DATA.emergencyScenario = 0;
 }

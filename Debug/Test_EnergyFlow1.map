@@ -31,6 +31,7 @@ timers_tick1kHz     0x1               Hydrogreen/timers.o
 htim3               0x4c              Core/Src/tim.o
 RS485_RX_VERIFIED_DATA
                     0x4               Hydrogreen/rs485.o
+FC_T_PID            0x50              Hydrogreen/pidController.o
 timers_mainTimeHours
                     0x1               Hydrogreen/timers.o
 FANS                0x8               Hydrogreen/fans.o
@@ -1872,8 +1873,14 @@ Discarded input sections
                 0x0000000000000000       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
  .text.HAL_CRC_Accumulate
                 0x0000000000000000       0x82 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
+ .text.HAL_CRC_Calculate
+                0x0000000000000000       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
  .text.HAL_CRC_GetState
                 0x0000000000000000       0x1a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
+ .text.CRC_Handle_8
+                0x0000000000000000      0x11c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
+ .text.CRC_Handle_16
+                0x0000000000000000       0x74 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
  .debug_macro   0x0000000000000000      0xa5a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
  .debug_macro   0x0000000000000000      0x169 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
  .debug_macro   0x0000000000000000       0x2e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
@@ -4052,6 +4059,8 @@ Discarded input sections
                 0x0000000000000000       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.HAL_UART_MspDeInit
                 0x0000000000000000       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+ .text.HAL_UART_Transmit
+                0x0000000000000000      0x128 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.HAL_UART_Receive
                 0x0000000000000000      0x1a2 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.HAL_UART_Transmit_IT
@@ -4339,18 +4348,6 @@ Discarded input sections
  .text          0x0000000000000000        0x0 Hydrogreen/Energy_flow.o
  .data          0x0000000000000000        0x0 Hydrogreen/Energy_flow.o
  .bss           0x0000000000000000        0x0 Hydrogreen/Energy_flow.o
- .text.energyflow_step
-                0x0000000000000000       0x4c Hydrogreen/Energy_flow.o
- .text.energyflow_mode0
-                0x0000000000000000       0x3c Hydrogreen/Energy_flow.o
- .text.energyflow_preapre_to_race
-                0x0000000000000000       0x3c Hydrogreen/Energy_flow.o
- .text.energyflow_race
-                0x0000000000000000       0xec Hydrogreen/Energy_flow.o
- .text.energyflow_end_race
-                0x0000000000000000       0x24 Hydrogreen/Energy_flow.o
- .text.energyflow_emergency
-                0x0000000000000000        0xe Hydrogreen/Energy_flow.o
  .debug_macro   0x0000000000000000      0xa5a Hydrogreen/Energy_flow.o
  .debug_macro   0x0000000000000000      0x34e Hydrogreen/Energy_flow.o
  .debug_macro   0x0000000000000000      0x169 Hydrogreen/Energy_flow.o
@@ -4852,8 +4849,28 @@ Discarded input sections
  .text          0x0000000000000000        0x0 Hydrogreen/rs485.o
  .data          0x0000000000000000        0x0 Hydrogreen/rs485.o
  .bss           0x0000000000000000        0x0 Hydrogreen/rs485.o
- .bss.emergency
+ .bss.posInTxTab
+                0x0000000000000000        0x2 Hydrogreen/rs485.o
+ .data.rs485_flt
                 0x0000000000000000        0x1 Hydrogreen/rs485.o
+ .bss.rejectedFramesInRow
+                0x0000000000000000        0x4 Hydrogreen/rs485.o
+ .text.crc_calc
+                0x0000000000000000       0x8c Hydrogreen/rs485.o
+ .text.rs485_step
+                0x0000000000000000       0x10 Hydrogreen/rs485.o
+ .text.sendData
+                0x0000000000000000       0x78 Hydrogreen/rs485.o
+ .text.receiveData
+                0x0000000000000000       0xdc Hydrogreen/rs485.o
+ .text.processReceivedData
+                0x0000000000000000       0x60 Hydrogreen/rs485.o
+ .text.resetActData
+                0x0000000000000000       0x2c Hydrogreen/rs485.o
+ .bss.cntEndOfTxTick.8458
+                0x0000000000000000        0x2 Hydrogreen/rs485.o
+ .bss.cntEndOfRxTick.8462
+                0x0000000000000000        0x4 Hydrogreen/rs485.o
  .debug_macro   0x0000000000000000      0xa5a Hydrogreen/rs485.o
  .debug_macro   0x0000000000000000      0x34e Hydrogreen/rs485.o
  .debug_macro   0x0000000000000000       0x10 Hydrogreen/rs485.o
@@ -5230,7 +5247,7 @@ LOAD d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.i
                 0x0000000008000000                g_pfnVectors
                 0x0000000008000188                . = ALIGN (0x4)
 
-.text           0x0000000008000188     0x7608
+.text           0x0000000008000188     0x756c
                 0x0000000008000188                . = ALIGN (0x4)
  *(.text)
  .text          0x0000000008000188       0x40 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
@@ -5466,407 +5483,411 @@ LOAD d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.i
  .text.HAL_CRC_Init
                 0x0000000008002104       0xc8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
                 0x0000000008002104                HAL_CRC_Init
- .text.HAL_CRC_Calculate
-                0x00000000080021cc       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
-                0x00000000080021cc                HAL_CRC_Calculate
- .text.CRC_Handle_8
-                0x000000000800225e      0x11c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
- .text.CRC_Handle_16
-                0x000000000800237a       0x74 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
- *fill*         0x00000000080023ee        0x2 
  .text.HAL_CRCEx_Polynomial_Set
-                0x00000000080023f0      0x10c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc_ex.o
-                0x00000000080023f0                HAL_CRCEx_Polynomial_Set
+                0x00000000080021cc      0x10c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc_ex.o
+                0x00000000080021cc                HAL_CRCEx_Polynomial_Set
  .text.HAL_DMA_Init
-                0x00000000080024fc       0x8e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
-                0x00000000080024fc                HAL_DMA_Init
+                0x00000000080022d8       0x8e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x00000000080022d8                HAL_DMA_Init
  .text.HAL_DMA_Start_IT
-                0x000000000800258a       0xbe Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
-                0x000000000800258a                HAL_DMA_Start_IT
+                0x0000000008002366       0xbe Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x0000000008002366                HAL_DMA_Start_IT
  .text.HAL_DMA_Abort
-                0x0000000008002648       0x72 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
-                0x0000000008002648                HAL_DMA_Abort
+                0x0000000008002424       0x72 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x0000000008002424                HAL_DMA_Abort
  .text.HAL_DMA_Abort_IT
-                0x00000000080026ba       0x7c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
-                0x00000000080026ba                HAL_DMA_Abort_IT
+                0x0000000008002496       0x7c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x0000000008002496                HAL_DMA_Abort_IT
  .text.HAL_DMA_IRQHandler
-                0x0000000008002736      0x146 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
-                0x0000000008002736                HAL_DMA_IRQHandler
+                0x0000000008002512      0x146 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x0000000008002512                HAL_DMA_IRQHandler
  .text.DMA_SetConfig
-                0x000000000800287c       0x5c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x0000000008002658       0x5c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
  .text.DMA_CalcBaseAndBitshift
-                0x00000000080028d8       0x40 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+                0x00000000080026b4       0x40 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
  .text.HAL_GPIO_Init
-                0x0000000008002918      0x2e4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
-                0x0000000008002918                HAL_GPIO_Init
+                0x00000000080026f4      0x2e4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+                0x00000000080026f4                HAL_GPIO_Init
  .text.HAL_GPIO_WritePin
-                0x0000000008002bfc       0x30 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
-                0x0000000008002bfc                HAL_GPIO_WritePin
+                0x00000000080029d8       0x30 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+                0x00000000080029d8                HAL_GPIO_WritePin
  .text.HAL_GPIO_EXTI_IRQHandler
-                0x0000000008002c2c       0x30 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
-                0x0000000008002c2c                HAL_GPIO_EXTI_IRQHandler
+                0x0000000008002a08       0x30 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+                0x0000000008002a08                HAL_GPIO_EXTI_IRQHandler
  .text.HAL_IWDG_Init
-                0x0000000008002c5c       0x8c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
-                0x0000000008002c5c                HAL_IWDG_Init
+                0x0000000008002a38       0x8c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
+                0x0000000008002a38                HAL_IWDG_Init
  .text.HAL_IWDG_Refresh
-                0x0000000008002ce8       0x20 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
-                0x0000000008002ce8                HAL_IWDG_Refresh
+                0x0000000008002ac4       0x20 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
+                0x0000000008002ac4                HAL_IWDG_Refresh
  .text.HAL_RCC_OscConfig
-                0x0000000008002d08      0xe10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008002d08                HAL_RCC_OscConfig
+                0x0000000008002ae4      0xe10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x0000000008002ae4                HAL_RCC_OscConfig
  .text.HAL_RCC_ClockConfig
-                0x0000000008003b18      0x2f8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008003b18                HAL_RCC_ClockConfig
+                0x00000000080038f4      0x2f8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x00000000080038f4                HAL_RCC_ClockConfig
  .text.HAL_RCC_GetSysClockFreq
-                0x0000000008003e10       0xd4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008003e10                HAL_RCC_GetSysClockFreq
+                0x0000000008003bec       0xd4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x0000000008003bec                HAL_RCC_GetSysClockFreq
  .text.HAL_RCC_GetHCLKFreq
-                0x0000000008003ee4       0x18 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008003ee4                HAL_RCC_GetHCLKFreq
+                0x0000000008003cc0       0x18 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x0000000008003cc0                HAL_RCC_GetHCLKFreq
  .text.HAL_RCC_GetPCLK1Freq
-                0x0000000008003efc       0x44 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008003efc                HAL_RCC_GetPCLK1Freq
+                0x0000000008003cd8       0x44 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x0000000008003cd8                HAL_RCC_GetPCLK1Freq
  .text.HAL_RCC_GetPCLK2Freq
-                0x0000000008003f40       0x44 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x0000000008003f40                HAL_RCC_GetPCLK2Freq
+                0x0000000008003d1c       0x44 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x0000000008003d1c                HAL_RCC_GetPCLK2Freq
  .text.HAL_RCCEx_PeriphCLKConfig
-                0x0000000008003f84      0x24c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
-                0x0000000008003f84                HAL_RCCEx_PeriphCLKConfig
+                0x0000000008003d60      0x24c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
+                0x0000000008003d60                HAL_RCCEx_PeriphCLKConfig
  .text.HAL_TIM_Base_Init
-                0x00000000080041d0       0xae Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080041d0                HAL_TIM_Base_Init
- *fill*         0x000000000800427e        0x2 
+                0x0000000008003fac       0xae Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008003fac                HAL_TIM_Base_Init
+ *fill*         0x000000000800405a        0x2 
  .text.HAL_TIM_Base_Start_IT
-                0x0000000008004280       0xb8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004280                HAL_TIM_Base_Start_IT
+                0x000000000800405c       0xb8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x000000000800405c                HAL_TIM_Base_Start_IT
  .text.HAL_TIM_PWM_Init
-                0x0000000008004338       0xae Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004338                HAL_TIM_PWM_Init
+                0x0000000008004114       0xae Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004114                HAL_TIM_PWM_Init
  .text.HAL_TIM_PWM_MspInit
-                0x00000000080043e6       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080043e6                HAL_TIM_PWM_MspInit
- *fill*         0x00000000080043fa        0x2 
+                0x00000000080041c2       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080041c2                HAL_TIM_PWM_MspInit
+ *fill*         0x00000000080041d6        0x2 
  .text.HAL_TIM_PWM_Start
-                0x00000000080043fc      0x1d8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080043fc                HAL_TIM_PWM_Start
+                0x00000000080041d8      0x1d8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080041d8                HAL_TIM_PWM_Start
  .text.HAL_TIM_PWM_Start_DMA
-                0x00000000080045d4      0x3fc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080045d4                HAL_TIM_PWM_Start_DMA
+                0x00000000080043b0      0x3fc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080043b0                HAL_TIM_PWM_Start_DMA
  .text.HAL_TIM_IRQHandler
-                0x00000000080049d0      0x23e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080049d0                HAL_TIM_IRQHandler
- *fill*         0x0000000008004c0e        0x2 
+                0x00000000080047ac      0x23e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080047ac                HAL_TIM_IRQHandler
+ *fill*         0x00000000080049ea        0x2 
  .text.HAL_TIM_PWM_ConfigChannel
-                0x0000000008004c10      0x220 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004c10                HAL_TIM_PWM_ConfigChannel
+                0x00000000080049ec      0x220 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080049ec                HAL_TIM_PWM_ConfigChannel
  .text.HAL_TIM_ConfigClockSource
-                0x0000000008004e30      0x172 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004e30                HAL_TIM_ConfigClockSource
+                0x0000000008004c0c      0x172 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004c0c                HAL_TIM_ConfigClockSource
  .text.HAL_TIM_OC_DelayElapsedCallback
-                0x0000000008004fa2       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004fa2                HAL_TIM_OC_DelayElapsedCallback
+                0x0000000008004d7e       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004d7e                HAL_TIM_OC_DelayElapsedCallback
  .text.HAL_TIM_IC_CaptureCallback
-                0x0000000008004fb6       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004fb6                HAL_TIM_IC_CaptureCallback
+                0x0000000008004d92       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004d92                HAL_TIM_IC_CaptureCallback
  .text.HAL_TIM_PWM_PulseFinishedCallback
-                0x0000000008004fca       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004fca                HAL_TIM_PWM_PulseFinishedCallback
+                0x0000000008004da6       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004da6                HAL_TIM_PWM_PulseFinishedCallback
  .text.HAL_TIM_PWM_PulseFinishedHalfCpltCallback
-                0x0000000008004fde       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004fde                HAL_TIM_PWM_PulseFinishedHalfCpltCallback
+                0x0000000008004dba       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004dba                HAL_TIM_PWM_PulseFinishedHalfCpltCallback
  .text.HAL_TIM_TriggerCallback
-                0x0000000008004ff2       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008004ff2                HAL_TIM_TriggerCallback
+                0x0000000008004dce       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004dce                HAL_TIM_TriggerCallback
  .text.HAL_TIM_ErrorCallback
-                0x0000000008005006       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008005006                HAL_TIM_ErrorCallback
+                0x0000000008004de2       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004de2                HAL_TIM_ErrorCallback
  .text.TIM_DMAError
-                0x000000000800501a       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x000000000800501a                TIM_DMAError
+                0x0000000008004df6       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004df6                TIM_DMAError
  .text.TIM_DMADelayPulseCplt
-                0x00000000080050ac       0xa8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004e88       0xa8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_DMADelayPulseHalfCplt
-                0x0000000008005154       0x68 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x0000000008005154                TIM_DMADelayPulseHalfCplt
+                0x0000000008004f30       0x68 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004f30                TIM_DMADelayPulseHalfCplt
  .text.TIM_Base_SetConfig
-                0x00000000080051bc       0xf0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080051bc                TIM_Base_SetConfig
+                0x0000000008004f98       0xf0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008004f98                TIM_Base_SetConfig
  .text.TIM_OC1_SetConfig
-                0x00000000080052ac      0x10c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005088      0x10c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_OC2_SetConfig
-                0x00000000080053b8      0x100 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080053b8                TIM_OC2_SetConfig
+                0x0000000008005194      0x100 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005194                TIM_OC2_SetConfig
  .text.TIM_OC3_SetConfig
-                0x00000000080054b8       0xfc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005294       0xfc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_OC4_SetConfig
-                0x00000000080055b4       0xc8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005390       0xc8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_OC5_SetConfig
-                0x000000000800567c       0xbc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005458       0xbc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_OC6_SetConfig
-                0x0000000008005738       0xc0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005514       0xc0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_TI1_ConfigInputStage
-                0x00000000080057f8       0x5e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080055d4       0x5e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_TI2_ConfigInputStage
-                0x0000000008005856       0x60 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005632       0x60 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_ITRx_SetConfig
-                0x00000000080058b6       0x36 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005692       0x36 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
  .text.TIM_ETR_SetConfig
-                0x00000000080058ec       0x40 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x00000000080058ec                TIM_ETR_SetConfig
+                0x00000000080056c8       0x40 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x00000000080056c8                TIM_ETR_SetConfig
  .text.TIM_CCxChannelCmd
-                0x000000000800592c       0x4a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
-                0x000000000800592c                TIM_CCxChannelCmd
- *fill*         0x0000000008005976        0x2 
+                0x0000000008005708       0x4a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+                0x0000000008005708                TIM_CCxChannelCmd
+ *fill*         0x0000000008005752        0x2 
  .text.HAL_TIMEx_MasterConfigSynchronization
-                0x0000000008005978       0xdc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
-                0x0000000008005978                HAL_TIMEx_MasterConfigSynchronization
+                0x0000000008005754       0xdc Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+                0x0000000008005754                HAL_TIMEx_MasterConfigSynchronization
  .text.HAL_TIMEx_ConfigBreakDeadTime
-                0x0000000008005a54       0xf0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
-                0x0000000008005a54                HAL_TIMEx_ConfigBreakDeadTime
+                0x0000000008005830       0xf0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+                0x0000000008005830                HAL_TIMEx_ConfigBreakDeadTime
  .text.HAL_TIMEx_CommutCallback
-                0x0000000008005b44       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
-                0x0000000008005b44                HAL_TIMEx_CommutCallback
+                0x0000000008005920       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+                0x0000000008005920                HAL_TIMEx_CommutCallback
  .text.HAL_TIMEx_BreakCallback
-                0x0000000008005b58       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
-                0x0000000008005b58                HAL_TIMEx_BreakCallback
+                0x0000000008005934       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+                0x0000000008005934                HAL_TIMEx_BreakCallback
  .text.HAL_TIMEx_Break2Callback
-                0x0000000008005b6c       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
-                0x0000000008005b6c                HAL_TIMEx_Break2Callback
+                0x0000000008005948       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+                0x0000000008005948                HAL_TIMEx_Break2Callback
  .text.HAL_UART_Init
-                0x0000000008005b80       0x9c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008005b80                HAL_UART_Init
- .text.HAL_UART_Transmit
-                0x0000000008005c1c      0x128 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008005c1c                HAL_UART_Transmit
+                0x000000000800595c       0x9c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x000000000800595c                HAL_UART_Init
  .text.HAL_UART_Receive_DMA
-                0x0000000008005d44       0x7a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008005d44                HAL_UART_Receive_DMA
- *fill*         0x0000000008005dbe        0x2 
+                0x00000000080059f8       0x7a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x00000000080059f8                HAL_UART_Receive_DMA
+ *fill*         0x0000000008005a72        0x2 
  .text.HAL_UART_IRQHandler
-                0x0000000008005dc0      0x400 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008005dc0                HAL_UART_IRQHandler
+                0x0000000008005a74      0x400 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005a74                HAL_UART_IRQHandler
  .text.HAL_UART_TxCpltCallback
-                0x00000000080061c0       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x00000000080061c0                HAL_UART_TxCpltCallback
+                0x0000000008005e74       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005e74                HAL_UART_TxCpltCallback
  .text.HAL_UART_RxHalfCpltCallback
-                0x00000000080061d4       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x00000000080061d4                HAL_UART_RxHalfCpltCallback
+                0x0000000008005e88       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005e88                HAL_UART_RxHalfCpltCallback
  .text.HAL_UART_ErrorCallback
-                0x00000000080061e8       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x00000000080061e8                HAL_UART_ErrorCallback
+                0x0000000008005e9c       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005e9c                HAL_UART_ErrorCallback
  .text.HAL_UARTEx_RxEventCallback
-                0x00000000080061fc       0x18 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x00000000080061fc                HAL_UARTEx_RxEventCallback
+                0x0000000008005eb0       0x18 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005eb0                HAL_UARTEx_RxEventCallback
  .text.UART_SetConfig
-                0x0000000008006214      0x270 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008006214                UART_SetConfig
+                0x0000000008005ec8      0x270 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008005ec8                UART_SetConfig
  .text.UART_AdvFeatureConfig
-                0x0000000008006484      0x144 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008006484                UART_AdvFeatureConfig
+                0x0000000008006138      0x144 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008006138                UART_AdvFeatureConfig
  .text.UART_CheckIdleState
-                0x00000000080065c8       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x00000000080065c8                UART_CheckIdleState
+                0x000000000800627c       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x000000000800627c                UART_CheckIdleState
  .text.UART_WaitOnFlagUntilTimeout
-                0x000000000800665a       0xf8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x000000000800665a                UART_WaitOnFlagUntilTimeout
- *fill*         0x0000000008006752        0x2 
+                0x000000000800630e       0xf8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x000000000800630e                UART_WaitOnFlagUntilTimeout
+ *fill*         0x0000000008006406        0x2 
  .text.UART_Start_Receive_DMA
-                0x0000000008006754       0xd8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
-                0x0000000008006754                UART_Start_Receive_DMA
+                0x0000000008006408       0xd8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008006408                UART_Start_Receive_DMA
  .text.UART_EndTxTransfer
-                0x000000000800682c       0x2a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x00000000080064e0       0x2a Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_EndRxTransfer
-                0x0000000008006856       0x5e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x000000000800650a       0x5e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_DMAReceiveCplt
-                0x00000000080068b4       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008006568       0x92 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_DMARxHalfCplt
-                0x0000000008006946       0x38 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x00000000080065fa       0x38 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_DMAError
-                0x000000000800697e       0x7c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x0000000008006632       0x7c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_DMAAbortOnError
-                0x00000000080069fa       0x2c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x00000000080066ae       0x2c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.UART_EndTransmit_IT
-                0x0000000008006a26       0x32 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+                0x00000000080066da       0x32 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .text.HAL_UARTEx_WakeupCallback
-                0x0000000008006a58       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
-                0x0000000008006a58                HAL_UARTEx_WakeupCallback
+                0x000000000800670c       0x14 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
+                0x000000000800670c                HAL_UARTEx_WakeupCallback
  .text.energyflow_init
-                0x0000000008006a6c       0x3c Hydrogreen/Energy_flow.o
-                0x0000000008006a6c                energyflow_init
+                0x0000000008006720       0x3c Hydrogreen/Energy_flow.o
+                0x0000000008006720                energyflow_init
+ .text.energyflow_step
+                0x000000000800675c       0xa8 Hydrogreen/Energy_flow.o
+                0x000000000800675c                energyflow_step
+ .text.energyflow_mode0
+                0x0000000008006804       0x48 Hydrogreen/Energy_flow.o
+                0x0000000008006804                energyflow_mode0
+ .text.energyflow_preapre_to_race
+                0x000000000800684c       0x48 Hydrogreen/Energy_flow.o
+                0x000000000800684c                energyflow_preapre_to_race
+ .text.energyflow_race
+                0x0000000008006894       0xec Hydrogreen/Energy_flow.o
+                0x0000000008006894                energyflow_race
+ .text.energyflow_end_race
+                0x0000000008006980       0x24 Hydrogreen/Energy_flow.o
+                0x0000000008006980                energyflow_end_race
+ .text.energyflow_emergency
+                0x00000000080069a4        0xe Hydrogreen/Energy_flow.o
+                0x00000000080069a4                energyflow_emergency
+ *fill*         0x00000000080069b2        0x2 
  .text.fans_init
-                0x0000000008006aa8       0x1c Hydrogreen/fans.o
-                0x0000000008006aa8                fans_init
+                0x00000000080069b4       0x1c Hydrogreen/fans.o
+                0x00000000080069b4                fans_init
  .text.fansStep
-                0x0000000008006ac4        0xc Hydrogreen/fans.o
-                0x0000000008006ac4                fansStep
+                0x00000000080069d0        0xc Hydrogreen/fans.o
+                0x00000000080069d0                fansStep
  .text.doCalculations
-                0x0000000008006ad0       0x80 Hydrogreen/fans.o
+                0x00000000080069dc       0x80 Hydrogreen/fans.o
  .text.HAL_GPIO_EXTI_Callback
-                0x0000000008006b50       0x48 Hydrogreen/fans.o
-                0x0000000008006b50                HAL_GPIO_EXTI_Callback
+                0x0000000008006a5c       0x48 Hydrogreen/fans.o
+                0x0000000008006a5c                HAL_GPIO_EXTI_Callback
  .text.hydrogreen_init
-                0x0000000008006b98       0x24 Hydrogreen/hydrogreen.o
+                0x0000000008006aa4       0x28 Hydrogreen/hydrogreen.o
  .text.hydrogreen_step1kHz
-                0x0000000008006bbc       0x18 Hydrogreen/hydrogreen.o
+                0x0000000008006acc       0x1c Hydrogreen/hydrogreen.o
  .text.hydrogreen_step10kHz
-                0x0000000008006bd4        0xc Hydrogreen/hydrogreen.o
+                0x0000000008006ae8        0xe Hydrogreen/hydrogreen.o
+ *fill*         0x0000000008006af6        0x2 
  .text.hydrogreen_main
-                0x0000000008006be0       0x44 Hydrogreen/hydrogreen.o
-                0x0000000008006be0                hydrogreen_main
+                0x0000000008006af8       0x44 Hydrogreen/hydrogreen.o
+                0x0000000008006af8                hydrogreen_main
  .text.hydrogreen_hardFault
-                0x0000000008006c24        0xe Hydrogreen/hydrogreen.o
-                0x0000000008006c24                hydrogreen_hardFault
- *fill*         0x0000000008006c32        0x2 
+                0x0000000008006b3c        0xe Hydrogreen/hydrogreen.o
+                0x0000000008006b3c                hydrogreen_hardFault
+ *fill*         0x0000000008006b4a        0x2 
  .text.adc_init
-                0x0000000008006c34       0x3c Hydrogreen/measurements.o
-                0x0000000008006c34                adc_init
+                0x0000000008006b4c       0x3c Hydrogreen/measurements.o
+                0x0000000008006b4c                adc_init
  .text.calculateValues
-                0x0000000008006c70       0xb4 Hydrogreen/measurements.o
+                0x0000000008006b88       0xb8 Hydrogreen/measurements.o
  .text.averaging_Values
-                0x0000000008006d24      0x11c Hydrogreen/measurements.o
+                0x0000000008006c40      0x11c Hydrogreen/measurements.o
  .text.adc_step
-                0x0000000008006e40       0x10 Hydrogreen/measurements.o
-                0x0000000008006e40                adc_step
+                0x0000000008006d5c       0x10 Hydrogreen/measurements.o
+                0x0000000008006d5c                adc_step
  .text.motor_init
-                0x0000000008006e50       0x20 Hydrogreen/motor.o
-                0x0000000008006e50                motor_init
- .text.PIDstep  0x0000000008006e70      0x150 Hydrogreen/pidController.o
-                0x0000000008006e70                PIDstep
+                0x0000000008006d6c       0x20 Hydrogreen/motor.o
+                0x0000000008006d6c                motor_init
+ .text.PID_init
+                0x0000000008006d8c       0xc0 Hydrogreen/pidController.o
+                0x0000000008006d8c                PID_init
+ .text.PIDstep  0x0000000008006e4c      0x1f0 Hydrogreen/pidController.o
+                0x0000000008006e4c                PIDstep
+ .text.crc_calc_TX
+                0x000000000800703c       0x8c Hydrogreen/rs485.o
+                0x000000000800703c                crc_calc_TX
  .text.rs485_init
-                0x0000000008006fc0       0x20 Hydrogreen/rs485.o
-                0x0000000008006fc0                rs485_init
- .text.rs485_step
-                0x0000000008006fe0       0x10 Hydrogreen/rs485.o
-                0x0000000008006fe0                rs485_step
- .text.sendData
-                0x0000000008006ff0       0x78 Hydrogreen/rs485.o
- .text.receiveData
-                0x0000000008007068       0xd0 Hydrogreen/rs485.o
+                0x00000000080070c8       0x20 Hydrogreen/rs485.o
+                0x00000000080070c8                rs485_init
  .text.HAL_UART_RxCpltCallback
-                0x0000000008007138       0x68 Hydrogreen/rs485.o
-                0x0000000008007138                HAL_UART_RxCpltCallback
+                0x00000000080070e8       0x68 Hydrogreen/rs485.o
+                0x00000000080070e8                HAL_UART_RxCpltCallback
  .text.prepareNewDataToSend
-                0x00000000080071a0      0x140 Hydrogreen/rs485.o
- .text.processReceivedData
-                0x00000000080072e0       0x60 Hydrogreen/rs485.o
- .text.resetActData
-                0x0000000008007340       0x2c Hydrogreen/rs485.o
+                0x0000000008007150      0x180 Hydrogreen/rs485.o
  .text.timers_init
-                0x000000000800736c       0x1c Hydrogreen/timers.o
-                0x000000000800736c                timers_init
+                0x00000000080072d0       0x1c Hydrogreen/timers.o
+                0x00000000080072d0                timers_init
  .text.timers_step
-                0x0000000008007388       0x18 Hydrogreen/timers.o
+                0x00000000080072ec       0x18 Hydrogreen/timers.o
  .text.setSystemOperatingTime
-                0x00000000080073a0       0x88 Hydrogreen/timers.o
+                0x0000000008007304       0x88 Hydrogreen/timers.o
  .text.timers_beforeStep1kHz
-                0x0000000008007428       0x18 Hydrogreen/timers.o
-                0x0000000008007428                timers_beforeStep1kHz
+                0x000000000800738c       0x18 Hydrogreen/timers.o
+                0x000000000800738c                timers_beforeStep1kHz
  .text.timers_afterStep1kHz
-                0x0000000008007440       0xd0 Hydrogreen/timers.o
-                0x0000000008007440                timers_afterStep1kHz
+                0x00000000080073a4       0xd0 Hydrogreen/timers.o
+                0x00000000080073a4                timers_afterStep1kHz
  .text.HAL_SYSTICK_Callback
-                0x0000000008007510        0xc Hydrogreen/timers.o
-                0x0000000008007510                HAL_SYSTICK_Callback
+                0x0000000008007474        0xc Hydrogreen/timers.o
+                0x0000000008007474                HAL_SYSTICK_Callback
  .text.HAL_TIM_PeriodElapsedCallback
-                0x000000000800751c       0x48 Hydrogreen/timers.o
-                0x000000000800751c                HAL_TIM_PeriodElapsedCallback
+                0x0000000008007480       0x48 Hydrogreen/timers.o
+                0x0000000008007480                HAL_TIM_PeriodElapsedCallback
  .text.watchdog_init
-                0x0000000008007564      0x1a8 Hydrogreen/watchdog.o
-                0x0000000008007564                watchdog_init
+                0x00000000080074c8      0x1a8 Hydrogreen/watchdog.o
+                0x00000000080074c8                watchdog_init
  .text.watchdog_step
-                0x000000000800770c       0x14 Hydrogreen/watchdog.o
-                0x000000000800770c                watchdog_step
+                0x0000000008007670       0x14 Hydrogreen/watchdog.o
+                0x0000000008007670                watchdog_step
  .text.__libc_init_array
-                0x0000000008007720       0x48 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-init.o)
-                0x0000000008007720                __libc_init_array
- .text.memset   0x0000000008007768       0x10 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-memset.o)
-                0x0000000008007768                memset
+                0x0000000008007684       0x48 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-init.o)
+                0x0000000008007684                __libc_init_array
+ .text.memset   0x00000000080076cc       0x10 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-memset.o)
+                0x00000000080076cc                memset
  *(.glue_7)
- .glue_7        0x0000000008007778        0x0 linker stubs
+ .glue_7        0x00000000080076dc        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000008007778        0x0 linker stubs
+ .glue_7t       0x00000000080076dc        0x0 linker stubs
  *(.eh_frame)
- .eh_frame      0x0000000008007778        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+ .eh_frame      0x00000000080076dc        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
  *(.init)
- .init          0x0000000008007778        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
-                0x0000000008007778                _init
- .init          0x000000000800777c        0x8 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
+ .init          0x00000000080076dc        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
+                0x00000000080076dc                _init
+ .init          0x00000000080076e0        0x8 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
  *(.fini)
- .fini          0x0000000008007784        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
-                0x0000000008007784                _fini
- .fini          0x0000000008007788        0x8 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
-                0x0000000008007790                . = ALIGN (0x4)
-                0x0000000008007790                _etext = .
+ .fini          0x00000000080076e8        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
+                0x00000000080076e8                _fini
+ .fini          0x00000000080076ec        0x8 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
+                0x00000000080076f4                . = ALIGN (0x4)
+                0x00000000080076f4                _etext = .
 
-.vfp11_veneer   0x0000000008007790        0x0
- .vfp11_veneer  0x0000000008007790        0x0 linker stubs
+.vfp11_veneer   0x00000000080076f4        0x0
+ .vfp11_veneer  0x00000000080076f4        0x0 linker stubs
 
-.v4_bx          0x0000000008007790        0x0
- .v4_bx         0x0000000008007790        0x0 linker stubs
+.v4_bx          0x00000000080076f4        0x0
+ .v4_bx         0x00000000080076f4        0x0 linker stubs
 
-.iplt           0x0000000008007790        0x0
- .iplt          0x0000000008007790        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+.iplt           0x00000000080076f4        0x0
+ .iplt          0x00000000080076f4        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.rodata         0x0000000008007790       0x38
-                0x0000000008007790                . = ALIGN (0x4)
+.rodata         0x00000000080076f4       0x38
+                0x00000000080076f4                . = ALIGN (0x4)
  *(.rodata)
  *(.rodata*)
  .rodata.AHBPrescTable
-                0x0000000008007790       0x10 Core/Src/system_stm32f3xx.o
-                0x0000000008007790                AHBPrescTable
+                0x00000000080076f4       0x10 Core/Src/system_stm32f3xx.o
+                0x00000000080076f4                AHBPrescTable
  .rodata.APBPrescTable
-                0x00000000080077a0        0x8 Core/Src/system_stm32f3xx.o
-                0x00000000080077a0                APBPrescTable
+                0x0000000008007704        0x8 Core/Src/system_stm32f3xx.o
+                0x0000000008007704                APBPrescTable
  .rodata.aPLLMULFactorTable
-                0x00000000080077a8       0x10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x00000000080077a8                aPLLMULFactorTable
+                0x000000000800770c       0x10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x000000000800770c                aPLLMULFactorTable
  .rodata.aPredivFactorTable
-                0x00000000080077b8       0x10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
-                0x00000000080077b8                aPredivFactorTable
-                0x00000000080077c8                . = ALIGN (0x4)
+                0x000000000800771c       0x10 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+                0x000000000800771c                aPredivFactorTable
+                0x000000000800772c                . = ALIGN (0x4)
 
-.rel.dyn        0x00000000080077c8        0x0
- .rel.iplt      0x00000000080077c8        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+.rel.dyn        0x000000000800772c        0x0
+ .rel.iplt      0x000000000800772c        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.ARM.extab      0x00000000080077c8        0x0
-                0x00000000080077c8                . = ALIGN (0x4)
+.ARM.extab      0x000000000800772c        0x0
+                0x000000000800772c                . = ALIGN (0x4)
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x00000000080077c8                . = ALIGN (0x4)
+                0x000000000800772c                . = ALIGN (0x4)
 
-.ARM            0x00000000080077c8        0x0
-                0x00000000080077c8                . = ALIGN (0x4)
-                0x00000000080077c8                __exidx_start = .
+.ARM            0x000000000800772c        0x0
+                0x000000000800772c                . = ALIGN (0x4)
+                0x000000000800772c                __exidx_start = .
  *(.ARM.exidx*)
-                0x00000000080077c8                __exidx_end = .
-                0x00000000080077c8                . = ALIGN (0x4)
+                0x000000000800772c                __exidx_end = .
+                0x000000000800772c                . = ALIGN (0x4)
 
-.preinit_array  0x00000000080077c8        0x0
-                0x00000000080077c8                . = ALIGN (0x4)
-                0x00000000080077c8                PROVIDE (__preinit_array_start = .)
+.preinit_array  0x000000000800772c        0x0
+                0x000000000800772c                . = ALIGN (0x4)
+                0x000000000800772c                PROVIDE (__preinit_array_start = .)
  *(.preinit_array*)
-                0x00000000080077c8                PROVIDE (__preinit_array_end = .)
-                0x00000000080077c8                . = ALIGN (0x4)
+                0x000000000800772c                PROVIDE (__preinit_array_end = .)
+                0x000000000800772c                . = ALIGN (0x4)
 
-.init_array     0x00000000080077c8        0x4
-                0x00000000080077c8                . = ALIGN (0x4)
-                0x00000000080077c8                PROVIDE (__init_array_start = .)
+.init_array     0x000000000800772c        0x4
+                0x000000000800772c                . = ALIGN (0x4)
+                0x000000000800772c                PROVIDE (__init_array_start = .)
  *(SORT_BY_NAME(.init_array.*))
  *(.init_array*)
- .init_array    0x00000000080077c8        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
-                0x00000000080077cc                PROVIDE (__init_array_end = .)
-                0x00000000080077cc                . = ALIGN (0x4)
+ .init_array    0x000000000800772c        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+                0x0000000008007730                PROVIDE (__init_array_end = .)
+                0x0000000008007730                . = ALIGN (0x4)
 
-.fini_array     0x00000000080077cc        0x4
-                0x00000000080077cc                . = ALIGN (0x4)
+.fini_array     0x0000000008007730        0x4
+                0x0000000008007730                . = ALIGN (0x4)
                 [!provide]                        PROVIDE (__fini_array_start = .)
  *(SORT_BY_NAME(.fini_array.*))
  *(.fini_array*)
- .fini_array    0x00000000080077cc        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+ .fini_array    0x0000000008007730        0x4 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
                 [!provide]                        PROVIDE (__fini_array_end = .)
-                0x00000000080077d0                . = ALIGN (0x4)
-                0x00000000080077d0                _sidata = LOADADDR (.data)
+                0x0000000008007734                . = ALIGN (0x4)
+                0x0000000008007734                _sidata = LOADADDR (.data)
 
-.data           0x0000000020000000       0x20 load address 0x00000000080077d0
+.data           0x0000000020000000        0xc load address 0x0000000008007734
                 0x0000000020000000                . = ALIGN (0x4)
                 0x0000000020000000                _sdata = .
  *(.data)
@@ -5880,140 +5901,120 @@ LOAD d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.i
  .data.uwTickFreq
                 0x0000000020000008        0x1 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
                 0x0000000020000008                uwTickFreq
- *fill*         0x0000000020000009        0x3 
- .data.setTemp  0x000000002000000c        0x4 Hydrogreen/pidController.o
-                0x000000002000000c                setTemp
- .data.Kp       0x0000000020000010        0x4 Hydrogreen/pidController.o
-                0x0000000020000010                Kp
- .data.Ki       0x0000000020000014        0x4 Hydrogreen/pidController.o
-                0x0000000020000014                Ki
- .data.Kd       0x0000000020000018        0x4 Hydrogreen/pidController.o
-                0x0000000020000018                Kd
- .data.rs485_flt
-                0x000000002000001c        0x1 Hydrogreen/rs485.o
-                0x000000002000001c                rs485_flt
  *(.RamFunc)
  *(.RamFunc*)
-                0x0000000020000020                . = ALIGN (0x4)
- *fill*         0x000000002000001d        0x3 
-                0x0000000020000020                _edata = .
+                0x000000002000000c                . = ALIGN (0x4)
+ *fill*         0x0000000020000009        0x3 
+                0x000000002000000c                _edata = .
 
-.igot.plt       0x0000000020000020        0x0 load address 0x00000000080077f0
- .igot.plt      0x0000000020000020        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
-                0x0000000020000020                . = ALIGN (0x4)
+.igot.plt       0x000000002000000c        0x0 load address 0x0000000008007740
+ .igot.plt      0x000000002000000c        0x0 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+                0x000000002000000c                . = ALIGN (0x4)
 
-.bss            0x0000000020000020      0x48c load address 0x00000000080077f0
-                0x0000000020000020                _sbss = .
-                0x0000000020000020                __bss_start__ = _sbss
+.bss            0x000000002000000c      0x4c4 load address 0x0000000008007740
+                0x000000002000000c                _sbss = .
+                0x000000002000000c                __bss_start__ = _sbss
  *(.bss)
- .bss           0x0000000020000020       0x1c d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+ .bss           0x000000002000000c       0x1c d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
  *(.bss*)
+ .bss.sample    0x0000000020000028        0x4 Hydrogreen/Energy_flow.o
+ .bss.no        0x000000002000002c        0x1 Hydrogreen/Energy_flow.o
  .bss.sampleTime
-                0x000000002000003c        0x1 Hydrogreen/fans.o
- .bss.pulses_1  0x000000002000003d        0x1 Hydrogreen/fans.o
- .bss.pulses_2  0x000000002000003e        0x1 Hydrogreen/fans.o
- *fill*         0x000000002000003f        0x1 
- .bss.fcTemp    0x0000000020000040        0x4 Hydrogreen/pidController.o
-                0x0000000020000040                fcTemp
- .bss.error     0x0000000020000044        0x4 Hydrogreen/pidController.o
-                0x0000000020000044                error
- .bss.iError    0x0000000020000048        0x4 Hydrogreen/pidController.o
-                0x0000000020000048                iError
- .bss.dError    0x000000002000004c        0x4 Hydrogreen/pidController.o
-                0x000000002000004c                dError
- .bss.lastError
-                0x0000000020000050        0x4 Hydrogreen/pidController.o
-                0x0000000020000050                lastError
- .bss.value     0x0000000020000054        0x4 Hydrogreen/pidController.o
+                0x000000002000002d        0x1 Hydrogreen/fans.o
+ .bss.pulses_1  0x000000002000002e        0x1 Hydrogreen/fans.o
+ .bss.pulses_2  0x000000002000002f        0x1 Hydrogreen/fans.o
+ .bss.time.5496
+                0x0000000020000030        0x1 Hydrogreen/pidController.o
+ *fill*         0x0000000020000031        0x3 
  .bss.dataFromRx
-                0x0000000020000058        0x6 Hydrogreen/rs485.o
+                0x0000000020000034        0x6 Hydrogreen/rs485.o
  .bss.posInRxTab
-                0x000000002000005e        0x2 Hydrogreen/rs485.o
+                0x000000002000003a        0x2 Hydrogreen/rs485.o
  .bss.intRxCplt
-                0x0000000020000060        0x1 Hydrogreen/rs485.o
- *fill*         0x0000000020000061        0x3 
- .bss.dataToTx  0x0000000020000064       0x15 Hydrogreen/rs485.o
- *fill*         0x0000000020000079        0x1 
- .bss.posInTxTab
-                0x000000002000007a        0x2 Hydrogreen/rs485.o
+                0x000000002000003c        0x1 Hydrogreen/rs485.o
+ *fill*         0x000000002000003d        0x3 
+ .bss.dataToTx  0x0000000020000040       0x15 Hydrogreen/rs485.o
+ .bss.emergency
+                0x0000000020000055        0x1 Hydrogreen/rs485.o
+                0x0000000020000055                emergency
+ .bss.SumaKontrolnaBoKtosMimeczyDupe
+                0x0000000020000056        0x1 Hydrogreen/rs485.o
+                0x0000000020000056                SumaKontrolnaBoKtosMimeczyDupe
+ *fill*         0x0000000020000057        0x1 
  .bss.RS485_BUFF
-                0x000000002000007c        0x2 Hydrogreen/rs485.o
- .bss.cntEndOfTxTick.8420
-                0x000000002000007e        0x2 Hydrogreen/rs485.o
- .bss.cntEndOfRxTick.8425
-                0x0000000020000080        0x4 Hydrogreen/rs485.o
- .bss.rejectedFramesInRow.8424
-                0x0000000020000084        0x4 Hydrogreen/rs485.o
+                0x0000000020000058        0x2 Hydrogreen/rs485.o
+ *fill*         0x000000002000005a        0x2 
  .bss.timers_sysCycle100kHzCnt
-                0x0000000020000088        0x4 Hydrogreen/timers.o
+                0x000000002000005c        0x4 Hydrogreen/timers.o
  .bss.initFlag.8397
-                0x000000002000008c        0x1 Hydrogreen/timers.o
- *fill*         0x000000002000008d        0x3 
+                0x0000000020000060        0x1 Hydrogreen/timers.o
+ *fill*         0x0000000020000061        0x3 
  .bss.actSysCyclePeriod.8398
-                0x0000000020000090        0x4 Hydrogreen/timers.o
+                0x0000000020000064        0x4 Hydrogreen/timers.o
  .bss.avgCnt.8400
-                0x0000000020000094        0x2 Hydrogreen/timers.o
- *fill*         0x0000000020000096        0x2 
+                0x0000000020000068        0x2 Hydrogreen/timers.o
+ *fill*         0x000000002000006a        0x2 
  .bss.avgSysCyclePeriodSum.8399
-                0x0000000020000098        0x4 Hydrogreen/timers.o
+                0x000000002000006c        0x4 Hydrogreen/timers.o
  *(COMMON)
- COMMON         0x000000002000009c       0x94 Core/Src/adc.o
-                0x000000002000009c                hadc2
-                0x00000000200000ec                hdma_adc2
- COMMON         0x0000000020000130       0x24 Core/Src/crc.o
-                0x0000000020000130                hcrc
- COMMON         0x0000000020000154       0x10 Core/Src/iwdg.o
-                0x0000000020000154                hiwdg
- COMMON         0x0000000020000164      0x204 Core/Src/tim.o
-                0x0000000020000164                hdma_tim1_ch1
-                0x00000000200001a8                hdma_tim2_ch1
-                0x00000000200001ec                htim3
-                0x0000000020000238                htim6
-                0x0000000020000284                htim1
-                0x00000000200002d0                htim2
-                0x000000002000031c                htim7
- COMMON         0x0000000020000368       0xc8 Core/Src/usart.o
-                0x0000000020000368                hdma_usart2_rx
-                0x00000000200003ac                huart2
- COMMON         0x0000000020000430        0x4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
-                0x0000000020000430                uwTick
- COMMON         0x0000000020000434        0x4 Hydrogreen/Energy_flow.o
-                0x0000000020000434                hydros
- COMMON         0x0000000020000438        0x8 Hydrogreen/fans.o
-                0x0000000020000438                FANS
- COMMON         0x0000000020000440       0x48 Hydrogreen/measurements.o
-                0x0000000020000440                VALUES
-                0x0000000020000480                adcDataToCalculate
- COMMON         0x0000000020000488        0x4 Hydrogreen/rs485.o
-                0x0000000020000488                RS485_RX_VERIFIED_DATA
- COMMON         0x000000002000048c       0x1c Hydrogreen/timers.o
-                0x000000002000048c                timers_tick10kHz
-                0x000000002000048e                timers_mainTimeMiliseconds
-                0x0000000020000490                timers_tick1kHz
-                0x0000000020000491                timers_mainTimeHours
-                0x0000000020000494                timers_maxSysCyclePeriod
-                0x0000000020000498                timers_mainTimeMinutes
-                0x000000002000049c                timers_minSysCyclePeriod
-                0x00000000200004a0                timers_mainTimeSeconds
-                0x00000000200004a4                timers_avgSysCyclePeriod
- COMMON         0x00000000200004a8        0x1 Hydrogreen/watchdog.o
-                0x00000000200004a8                watchdog_flt
-                0x00000000200004ac                . = ALIGN (0x4)
- *fill*         0x00000000200004a9        0x3 
-                0x00000000200004ac                _ebss = .
-                0x00000000200004ac                __bss_end__ = _ebss
+ COMMON         0x0000000020000070       0x94 Core/Src/adc.o
+                0x0000000020000070                hadc2
+                0x00000000200000c0                hdma_adc2
+ COMMON         0x0000000020000104       0x24 Core/Src/crc.o
+                0x0000000020000104                hcrc
+ COMMON         0x0000000020000128       0x10 Core/Src/iwdg.o
+                0x0000000020000128                hiwdg
+ COMMON         0x0000000020000138      0x204 Core/Src/tim.o
+                0x0000000020000138                hdma_tim1_ch1
+                0x000000002000017c                hdma_tim2_ch1
+                0x00000000200001c0                htim3
+                0x000000002000020c                htim6
+                0x0000000020000258                htim1
+                0x00000000200002a4                htim2
+                0x00000000200002f0                htim7
+ COMMON         0x000000002000033c       0xc8 Core/Src/usart.o
+                0x000000002000033c                hdma_usart2_rx
+                0x0000000020000380                huart2
+ COMMON         0x0000000020000404        0x4 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
+                0x0000000020000404                uwTick
+ COMMON         0x0000000020000408        0x4 Hydrogreen/Energy_flow.o
+                0x0000000020000408                hydros
+ COMMON         0x000000002000040c        0x8 Hydrogreen/fans.o
+                0x000000002000040c                FANS
+ COMMON         0x0000000020000414       0x48 Hydrogreen/measurements.o
+                0x0000000020000414                VALUES
+                0x0000000020000454                adcDataToCalculate
+ COMMON         0x000000002000045c       0x50 Hydrogreen/pidController.o
+                0x000000002000045c                FC_T_PID
+ COMMON         0x00000000200004ac        0x4 Hydrogreen/rs485.o
+                0x00000000200004ac                RS485_RX_VERIFIED_DATA
+ COMMON         0x00000000200004b0       0x1c Hydrogreen/timers.o
+                0x00000000200004b0                timers_tick10kHz
+                0x00000000200004b2                timers_mainTimeMiliseconds
+                0x00000000200004b4                timers_tick1kHz
+                0x00000000200004b5                timers_mainTimeHours
+                0x00000000200004b8                timers_maxSysCyclePeriod
+                0x00000000200004bc                timers_mainTimeMinutes
+                0x00000000200004c0                timers_minSysCyclePeriod
+                0x00000000200004c4                timers_mainTimeSeconds
+                0x00000000200004c8                timers_avgSysCyclePeriod
+ COMMON         0x00000000200004cc        0x1 Hydrogreen/watchdog.o
+                0x00000000200004cc                watchdog_flt
+                0x00000000200004d0                . = ALIGN (0x4)
+ *fill*         0x00000000200004cd        0x3 
+                0x00000000200004d0                _ebss = .
+                0x00000000200004d0                __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x00000000200004ac      0x604 load address 0x00000000080077f0
-                0x00000000200004b0                . = ALIGN (0x8)
- *fill*         0x00000000200004ac        0x4 
+                0x00000000200004d0      0x600 load address 0x0000000008007740
+                0x00000000200004d0                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (end = .)
-                0x00000000200004b0                PROVIDE (_end = .)
-                0x00000000200006b0                . = (. + _Min_Heap_Size)
- *fill*         0x00000000200004b0      0x200 
-                0x0000000020000ab0                . = (. + _Min_Stack_Size)
- *fill*         0x00000000200006b0      0x400 
-                0x0000000020000ab0                . = ALIGN (0x8)
+                0x00000000200004d0                PROVIDE (_end = .)
+                0x00000000200006d0                . = (. + _Min_Heap_Size)
+ *fill*         0x00000000200004d0      0x200 
+                0x0000000020000ad0                . = (. + _Min_Stack_Size)
+ *fill*         0x00000000200006d0      0x400 
+                0x0000000020000ad0                . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
@@ -6107,7 +6108,7 @@ LOAD d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.i
                 0x00000000000008aa       0x22 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000    0x16ccb
+.debug_info     0x0000000000000000    0x17009
  .debug_info    0x0000000000000000      0xb21 Core/Src/adc.o
  .debug_info    0x0000000000000b21      0x49d Core/Src/crc.o
  .debug_info    0x0000000000000fbe      0x3a2 Core/Src/dma.o
@@ -6135,17 +6136,17 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_info    0x000000000000effb     0x144c Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
  .debug_info    0x0000000000010447     0x16a2 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .debug_info    0x0000000000011ae9      0xa11 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
- .debug_info    0x00000000000124fa      0xb0f Hydrogreen/Energy_flow.o
- .debug_info    0x0000000000013009      0x7d4 Hydrogreen/fans.o
- .debug_info    0x00000000000137dd      0x501 Hydrogreen/hydrogreen.o
- .debug_info    0x0000000000013cde      0x8eb Hydrogreen/measurements.o
- .debug_info    0x00000000000145c9      0x786 Hydrogreen/motor.o
- .debug_info    0x0000000000014d4f      0x3c8 Hydrogreen/pidController.o
- .debug_info    0x0000000000015117      0xc9c Hydrogreen/rs485.o
- .debug_info    0x0000000000015db3      0x8d1 Hydrogreen/timers.o
- .debug_info    0x0000000000016684      0x647 Hydrogreen/watchdog.o
+ .debug_info    0x00000000000124fa      0xbe7 Hydrogreen/Energy_flow.o
+ .debug_info    0x00000000000130e1      0x7d4 Hydrogreen/fans.o
+ .debug_info    0x00000000000138b5      0x5b8 Hydrogreen/hydrogreen.o
+ .debug_info    0x0000000000013e6d      0x8eb Hydrogreen/measurements.o
+ .debug_info    0x0000000000014758      0x79c Hydrogreen/motor.o
+ .debug_info    0x0000000000014ef4      0x42d Hydrogreen/pidController.o
+ .debug_info    0x0000000000015321      0xdd0 Hydrogreen/rs485.o
+ .debug_info    0x00000000000160f1      0x8d1 Hydrogreen/timers.o
+ .debug_info    0x00000000000169c2      0x647 Hydrogreen/watchdog.o
 
-.debug_abbrev   0x0000000000000000     0x3a59
+.debug_abbrev   0x0000000000000000     0x3af1
  .debug_abbrev  0x0000000000000000      0x1aa Core/Src/adc.o
  .debug_abbrev  0x00000000000001aa      0x159 Core/Src/crc.o
  .debug_abbrev  0x0000000000000303      0x107 Core/Src/dma.o
@@ -6173,17 +6174,17 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_abbrev  0x00000000000026a1      0x236 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
  .debug_abbrev  0x00000000000028d7      0x215 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .debug_abbrev  0x0000000000002aec      0x1e2 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
- .debug_abbrev  0x0000000000002cce      0x199 Hydrogreen/Energy_flow.o
- .debug_abbrev  0x0000000000002e67      0x19d Hydrogreen/fans.o
- .debug_abbrev  0x0000000000003004      0x123 Hydrogreen/hydrogreen.o
- .debug_abbrev  0x0000000000003127      0x188 Hydrogreen/measurements.o
- .debug_abbrev  0x00000000000032af      0x142 Hydrogreen/motor.o
- .debug_abbrev  0x00000000000033f1       0xd6 Hydrogreen/pidController.o
- .debug_abbrev  0x00000000000034c7      0x226 Hydrogreen/rs485.o
- .debug_abbrev  0x00000000000036ed      0x1cb Hydrogreen/timers.o
- .debug_abbrev  0x00000000000038b8      0x1a1 Hydrogreen/watchdog.o
+ .debug_abbrev  0x0000000000002cce      0x1b5 Hydrogreen/Energy_flow.o
+ .debug_abbrev  0x0000000000002e83      0x19d Hydrogreen/fans.o
+ .debug_abbrev  0x0000000000003020      0x137 Hydrogreen/hydrogreen.o
+ .debug_abbrev  0x0000000000003157      0x188 Hydrogreen/measurements.o
+ .debug_abbrev  0x00000000000032df      0x142 Hydrogreen/motor.o
+ .debug_abbrev  0x0000000000003421       0xec Hydrogreen/pidController.o
+ .debug_abbrev  0x000000000000350d      0x278 Hydrogreen/rs485.o
+ .debug_abbrev  0x0000000000003785      0x1cb Hydrogreen/timers.o
+ .debug_abbrev  0x0000000000003950      0x1a1 Hydrogreen/watchdog.o
 
-.debug_aranges  0x0000000000000000     0x12f8
+.debug_aranges  0x0000000000000000     0x1310
  .debug_aranges
                 0x0000000000000000       0x30 Core/Src/adc.o
  .debug_aranges
@@ -6249,15 +6250,15 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_aranges
                 0x00000000000011e8       0x20 Hydrogreen/motor.o
  .debug_aranges
-                0x0000000000001208       0x20 Hydrogreen/pidController.o
+                0x0000000000001208       0x28 Hydrogreen/pidController.o
  .debug_aranges
-                0x0000000000001228       0x58 Hydrogreen/rs485.o
+                0x0000000000001230       0x68 Hydrogreen/rs485.o
  .debug_aranges
-                0x0000000000001280       0x50 Hydrogreen/timers.o
+                0x0000000000001298       0x50 Hydrogreen/timers.o
  .debug_aranges
-                0x00000000000012d0       0x28 Hydrogreen/watchdog.o
+                0x00000000000012e8       0x28 Hydrogreen/watchdog.o
 
-.debug_ranges   0x0000000000000000     0x10f0
+.debug_ranges   0x0000000000000000     0x1108
  .debug_ranges  0x0000000000000000       0x20 Core/Src/adc.o
  .debug_ranges  0x0000000000000020       0x20 Core/Src/crc.o
  .debug_ranges  0x0000000000000040       0x10 Core/Src/dma.o
@@ -6290,12 +6291,12 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_ranges  0x0000000000000fd8       0x30 Hydrogreen/hydrogreen.o
  .debug_ranges  0x0000000000001008       0x28 Hydrogreen/measurements.o
  .debug_ranges  0x0000000000001030       0x10 Hydrogreen/motor.o
- .debug_ranges  0x0000000000001040       0x10 Hydrogreen/pidController.o
- .debug_ranges  0x0000000000001050       0x48 Hydrogreen/rs485.o
- .debug_ranges  0x0000000000001098       0x40 Hydrogreen/timers.o
- .debug_ranges  0x00000000000010d8       0x18 Hydrogreen/watchdog.o
+ .debug_ranges  0x0000000000001040       0x18 Hydrogreen/pidController.o
+ .debug_ranges  0x0000000000001058       0x58 Hydrogreen/rs485.o
+ .debug_ranges  0x00000000000010b0       0x40 Hydrogreen/timers.o
+ .debug_ranges  0x00000000000010f0       0x18 Hydrogreen/watchdog.o
 
-.debug_macro    0x0000000000000000    0x1e953
+.debug_macro    0x0000000000000000    0x1e95f
  .debug_macro   0x0000000000000000      0x216 Core/Src/adc.o
  .debug_macro   0x0000000000000216      0xa5a Core/Src/adc.o
  .debug_macro   0x0000000000000c70      0x169 Core/Src/adc.o
@@ -6379,11 +6380,11 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_macro   0x000000000001de2d      0x229 Hydrogreen/measurements.o
  .debug_macro   0x000000000001e056      0x228 Hydrogreen/motor.o
  .debug_macro   0x000000000001e27e       0x2f Hydrogreen/pidController.o
- .debug_macro   0x000000000001e2ad      0x252 Hydrogreen/rs485.o
- .debug_macro   0x000000000001e4ff      0x22c Hydrogreen/timers.o
- .debug_macro   0x000000000001e72b      0x228 Hydrogreen/watchdog.o
+ .debug_macro   0x000000000001e2ad      0x25e Hydrogreen/rs485.o
+ .debug_macro   0x000000000001e50b      0x22c Hydrogreen/timers.o
+ .debug_macro   0x000000000001e737      0x228 Hydrogreen/watchdog.o
 
-.debug_line     0x0000000000000000    0x167ff
+.debug_line     0x0000000000000000    0x168ca
  .debug_line    0x0000000000000000      0x7da Core/Src/adc.o
  .debug_line    0x00000000000007da      0x7aa Core/Src/crc.o
  .debug_line    0x0000000000000f84      0x784 Core/Src/dma.o
@@ -6411,89 +6412,89 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_line    0x000000000000f3b4     0x1509 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
  .debug_line    0x00000000000108bd     0x12a3 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
  .debug_line    0x0000000000011b60      0x9b0 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
- .debug_line    0x0000000000012510      0x87d Hydrogreen/Energy_flow.o
- .debug_line    0x0000000000012d8d      0x7e5 Hydrogreen/fans.o
- .debug_line    0x0000000000013572      0x86f Hydrogreen/hydrogreen.o
- .debug_line    0x0000000000013de1      0x7f3 Hydrogreen/measurements.o
- .debug_line    0x00000000000145d4      0x79b Hydrogreen/motor.o
- .debug_line    0x0000000000014d6f      0x173 Hydrogreen/pidController.o
- .debug_line    0x0000000000014ee2      0x8c3 Hydrogreen/rs485.o
- .debug_line    0x00000000000157a5      0x833 Hydrogreen/timers.o
- .debug_line    0x0000000000015fd8      0x827 Hydrogreen/watchdog.o
+ .debug_line    0x0000000000012510      0x898 Hydrogreen/Energy_flow.o
+ .debug_line    0x0000000000012da8      0x7e5 Hydrogreen/fans.o
+ .debug_line    0x000000000001358d      0x870 Hydrogreen/hydrogreen.o
+ .debug_line    0x0000000000013dfd      0x7f8 Hydrogreen/measurements.o
+ .debug_line    0x00000000000145f5      0x79b Hydrogreen/motor.o
+ .debug_line    0x0000000000014d90      0x1a3 Hydrogreen/pidController.o
+ .debug_line    0x0000000000014f33      0x93d Hydrogreen/rs485.o
+ .debug_line    0x0000000000015870      0x833 Hydrogreen/timers.o
+ .debug_line    0x00000000000160a3      0x827 Hydrogreen/watchdog.o
 
-.debug_str      0x0000000000000000    0xaa97d
- .debug_str     0x0000000000000000    0xa52ae Core/Src/adc.o
-                                      0xa560d (size before relaxing)
- .debug_str     0x00000000000a52ae      0x198 Core/Src/crc.o
-                                      0xa5260 (size before relaxing)
- .debug_str     0x00000000000a5446      0x24e Core/Src/dma.o
-                                      0xa533c (size before relaxing)
- .debug_str     0x00000000000a5694       0x48 Core/Src/gpio.o
-                                      0xa53dc (size before relaxing)
- .debug_str     0x00000000000a56dc       0x6f Core/Src/iwdg.o
-                                      0xa5089 (size before relaxing)
- .debug_str     0x00000000000a574b      0xfc3 Core/Src/main.o
-                                      0xa6767 (size before relaxing)
- .debug_str     0x00000000000a670e       0x2c Core/Src/stm32f3xx_hal_msp.o
-                                      0xa505b (size before relaxing)
- .debug_str     0x00000000000a673a      0x193 Core/Src/stm32f3xx_it.o
-                                      0xa58ce (size before relaxing)
- .debug_str     0x00000000000a68cd       0xb3 Core/Src/system_stm32f3xx.o
+.debug_str      0x0000000000000000    0xaaa7c
+ .debug_str     0x0000000000000000    0xa52a8 Core/Src/adc.o
+                                      0xa5607 (size before relaxing)
+ .debug_str     0x00000000000a52a8      0x198 Core/Src/crc.o
+                                      0xa525a (size before relaxing)
+ .debug_str     0x00000000000a5440      0x24e Core/Src/dma.o
+                                      0xa5336 (size before relaxing)
+ .debug_str     0x00000000000a568e       0x48 Core/Src/gpio.o
+                                      0xa53d6 (size before relaxing)
+ .debug_str     0x00000000000a56d6       0x6f Core/Src/iwdg.o
+                                      0xa5083 (size before relaxing)
+ .debug_str     0x00000000000a5745      0xfc3 Core/Src/main.o
+                                      0xa6761 (size before relaxing)
+ .debug_str     0x00000000000a6708       0x2c Core/Src/stm32f3xx_hal_msp.o
+                                      0xa5055 (size before relaxing)
+ .debug_str     0x00000000000a6734      0x193 Core/Src/stm32f3xx_it.o
+                                      0xa58c8 (size before relaxing)
+ .debug_str     0x00000000000a68c7       0xb3 Core/Src/system_stm32f3xx.o
                                       0xa4d37 (size before relaxing)
- .debug_str     0x00000000000a6980      0x270 Core/Src/tim.o
-                                      0xa5b84 (size before relaxing)
- .debug_str     0x00000000000a6bf0       0x57 Core/Src/usart.o
-                                      0xa581b (size before relaxing)
- .debug_str     0x00000000000a6c47       0x36 Core/Startup/startup_stm32f303k8tx.o
+ .debug_str     0x00000000000a697a      0x270 Core/Src/tim.o
+                                      0xa5b7e (size before relaxing)
+ .debug_str     0x00000000000a6bea       0x57 Core/Src/usart.o
+                                      0xa5815 (size before relaxing)
+ .debug_str     0x00000000000a6c41       0x36 Core/Startup/startup_stm32f303k8tx.o
                                          0x92 (size before relaxing)
- .debug_str     0x00000000000a6c7d      0x317 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
+ .debug_str     0x00000000000a6c77      0x317 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
                                       0xa5385 (size before relaxing)
- .debug_str     0x00000000000a6f94      0x22f Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.o
+ .debug_str     0x00000000000a6f8e      0x22f Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.o
                                       0xa5362 (size before relaxing)
- .debug_str     0x00000000000a71c3      0x6f8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
+ .debug_str     0x00000000000a71bd      0x6f8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
                                       0xa598f (size before relaxing)
- .debug_str     0x00000000000a78bb      0x284 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
+ .debug_str     0x00000000000a78b5      0x284 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
                                       0xa5366 (size before relaxing)
- .debug_str     0x00000000000a7b3f       0xba Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
+ .debug_str     0x00000000000a7b39       0xba Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc.o
                                       0xa4f06 (size before relaxing)
- .debug_str     0x00000000000a7bf9       0x82 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc_ex.o
+ .debug_str     0x00000000000a7bf3       0x82 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_crc_ex.o
                                       0xa4ed9 (size before relaxing)
- .debug_str     0x00000000000a7c7b      0x248 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
+ .debug_str     0x00000000000a7c75      0x248 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.o
                                       0xa50b1 (size before relaxing)
- .debug_str     0x00000000000a7ec3      0x208 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+ .debug_str     0x00000000000a7ebd      0x208 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
                                       0xa500f (size before relaxing)
- .debug_str     0x00000000000a80cb       0x96 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
+ .debug_str     0x00000000000a80c5       0x96 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.o
                                       0xa4d61 (size before relaxing)
- .debug_str     0x00000000000a8161      0x2f7 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+ .debug_str     0x00000000000a815b      0x2f7 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
                                       0xa51a5 (size before relaxing)
- .debug_str     0x00000000000a8458       0xd8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
+ .debug_str     0x00000000000a8452       0xd8 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
                                       0xa4eb9 (size before relaxing)
- .debug_str     0x00000000000a8530      0xda1 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+ .debug_str     0x00000000000a852a      0xda1 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
                                       0xa60f3 (size before relaxing)
- .debug_str     0x00000000000a92d1      0x4bd Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+ .debug_str     0x00000000000a92cb      0x4bd Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
                                       0xa5920 (size before relaxing)
- .debug_str     0x00000000000a978e      0x868 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+ .debug_str     0x00000000000a9788      0x868 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
                                       0xa5992 (size before relaxing)
- .debug_str     0x00000000000a9ff6      0x19e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
+ .debug_str     0x00000000000a9ff0      0x19e Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
                                       0xa527b (size before relaxing)
- .debug_str     0x00000000000aa194      0x26a Hydrogreen/Energy_flow.o
-                                      0xa616a (size before relaxing)
- .debug_str     0x00000000000aa3fe       0xa0 Hydrogreen/fans.o
-                                      0xa5f7f (size before relaxing)
- .debug_str     0x00000000000aa49e      0x1c5 Hydrogreen/hydrogreen.o
-                                      0xa5d62 (size before relaxing)
- .debug_str     0x00000000000aa663       0x61 Hydrogreen/measurements.o
-                                      0xa5f66 (size before relaxing)
- .debug_str     0x00000000000aa6c4       0x21 Hydrogreen/motor.o
-                                      0xa5f95 (size before relaxing)
- .debug_str     0x00000000000aa6e5       0x26 Hydrogreen/pidController.o
-                                       0x39bd (size before relaxing)
- .debug_str     0x00000000000aa70b      0x17c Hydrogreen/rs485.o
-                                      0xa6210 (size before relaxing)
- .debug_str     0x00000000000aa887       0xc1 Hydrogreen/timers.o
-                                      0xa608c (size before relaxing)
- .debug_str     0x00000000000aa948       0x35 Hydrogreen/watchdog.o
-                                      0xa5ae6 (size before relaxing)
+ .debug_str     0x00000000000aa18e      0x33c Hydrogreen/Energy_flow.o
+                                      0xa6236 (size before relaxing)
+ .debug_str     0x00000000000aa4ca       0xa0 Hydrogreen/fans.o
+                                      0xa5f79 (size before relaxing)
+ .debug_str     0x00000000000aa56a      0x1c5 Hydrogreen/hydrogreen.o
+                                      0xa5e27 (size before relaxing)
+ .debug_str     0x00000000000aa72f       0x61 Hydrogreen/measurements.o
+                                      0xa5f60 (size before relaxing)
+ .debug_str     0x00000000000aa790       0x21 Hydrogreen/motor.o
+                                      0xa5fc2 (size before relaxing)
+ .debug_str     0x00000000000aa7b1       0x2f Hydrogreen/pidController.o
+                                       0x3a96 (size before relaxing)
+ .debug_str     0x00000000000aa7e0      0x1a6 Hydrogreen/rs485.o
+                                      0xa626c (size before relaxing)
+ .debug_str     0x00000000000aa986       0xc1 Hydrogreen/timers.o
+                                      0xa6086 (size before relaxing)
+ .debug_str     0x00000000000aaa47       0x35 Hydrogreen/watchdog.o
+                                      0xa5ae0 (size before relaxing)
 
 .comment        0x0000000000000000       0x7b
  .comment       0x0000000000000000       0x7b Core/Src/adc.o
@@ -6533,7 +6534,7 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .comment       0x000000000000007b       0x7c Hydrogreen/timers.o
  .comment       0x000000000000007b       0x7c Hydrogreen/watchdog.o
 
-.debug_frame    0x0000000000000000     0x4980
+.debug_frame    0x0000000000000000     0x49f4
  .debug_frame   0x0000000000000000       0x7c Core/Src/adc.o
  .debug_frame   0x000000000000007c       0x7c Core/Src/crc.o
  .debug_frame   0x00000000000000f8       0x34 Core/Src/dma.o
@@ -6562,12 +6563,12 @@ OUTPUT(Test_EnergyFlow1.elf elf32-littlearm)
  .debug_frame   0x0000000000004260      0x190 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.o
  .debug_frame   0x00000000000043f0       0xd8 Hydrogreen/Energy_flow.o
  .debug_frame   0x00000000000044c8       0x90 Hydrogreen/fans.o
- .debug_frame   0x0000000000004558       0xa0 Hydrogreen/hydrogreen.o
- .debug_frame   0x00000000000045f8       0x88 Hydrogreen/measurements.o
- .debug_frame   0x0000000000004680       0x2c Hydrogreen/motor.o
- .debug_frame   0x00000000000046ac       0x30 Hydrogreen/pidController.o
- .debug_frame   0x00000000000046dc      0x118 Hydrogreen/rs485.o
- .debug_frame   0x00000000000047f4       0xec Hydrogreen/timers.o
- .debug_frame   0x00000000000048e0       0x54 Hydrogreen/watchdog.o
- .debug_frame   0x0000000000004934       0x2c d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-init.o)
- .debug_frame   0x0000000000004960       0x20 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-memset.o)
+ .debug_frame   0x0000000000004558       0xa4 Hydrogreen/hydrogreen.o
+ .debug_frame   0x00000000000045fc       0x88 Hydrogreen/measurements.o
+ .debug_frame   0x0000000000004684       0x2c Hydrogreen/motor.o
+ .debug_frame   0x00000000000046b0       0x50 Hydrogreen/pidController.o
+ .debug_frame   0x0000000000004700      0x168 Hydrogreen/rs485.o
+ .debug_frame   0x0000000000004868       0xec Hydrogreen/timers.o
+ .debug_frame   0x0000000000004954       0x54 Hydrogreen/watchdog.o
+ .debug_frame   0x00000000000049a8       0x2c d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-init.o)
+ .debug_frame   0x00000000000049d4       0x20 d:/program files/stm32cubeide_1.4.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/7.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-memset.o)

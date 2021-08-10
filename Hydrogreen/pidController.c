@@ -10,48 +10,96 @@
 #include "rs485.h"
 #include "fans.h"
 
- float setTemp=15;
- float fcTemp=0;
- float error=0;
- float iError=0;
- float dError=0;
- float lastError=0;
- float Kp=2;
- float Ki=1;
- float Kd=2;
- static uint32_t value=0;
+PID_struct FC_T_PID;
 
-
+void PID_init()
+{
+  FC_T_PID.Kp = 1.9;
+  FC_T_PID.Ki = 0.2;
+  FC_T_PID.Kd = 0.0002;
+  FC_T_PID.controlValue = 0;
+  FC_T_PID.error = 0;
+  FC_T_PID.iError = 0;
+  FC_T_PID.dError = 0;
+  FC_T_PID.lastError = 0;
+  FC_T_PID.setValue = 100; //Temperatura w st Celsjusza
+  FC_T_PID.measurement = 0;
+  FC_T_PID.prevMeasurement = 0;
+  FC_T_PID.proportional = 0;
+  FC_T_PID.integrator = 0;
+  FC_T_PID.differentator = 0;
+  FC_T_PID.integratorMax = 150;
+  FC_T_PID.integratorMin = -50;
+  FC_T_PID.controlMax = 255;
+  FC_T_PID.controlMin = 0;
+  FC_T_PID.PIDtime = 0.001; //Podstawa czasu z jaką wykonuje się funkcja PIDstep() w [s]
+  FC_T_PID.PIDtimeFactor = 1; //Mnożnik podstawy czasu
+}
 void PIDstep()
 {
-	//setTemp=RS485_RX_VERIFIED_DATA.fcPrepareToRaceMode;
-	//setTemp=100;
-	fcTemp=VALUES.FC_TEMP.value;
-	error=fcTemp-setTemp;
-	dError=error-lastError;
-	iError=iError+lastError;
-	lastError=error;
-	if(fcTemp<setTemp)
+  static uint8_t time = 0;
+  if (time >= FC_T_PID.PIDtimeFactor)
+    {
+      FC_T_PID.measurement = VALUES.FC_TEMP.value;
+
+      /*
+       * część proporcjonalna
+       */
+
+      FC_T_PID.error = FC_T_PID.measurement - FC_T_PID.setValue;
+      FC_T_PID.proportional = FC_T_PID.error * FC_T_PID.Kp;
+
+      /*
+       * część całkująca
+       */
+
+      FC_T_PID.iError = FC_T_PID.iError
+	  + FC_T_PID.PIDtime * FC_T_PID.PIDtimeFactor * 0.5f
+	      * (FC_T_PID.error + FC_T_PID.lastError); //Metoda trapezów suma dwóch następnych błędów podzielona na 2 pomnożona razy czas w [s] (wysokość trapezu)
+      if (FC_T_PID.iError >= FC_T_PID.integratorMax)
 	{
-		value=0;
-		iError=0;
+	  FC_T_PID.iError = FC_T_PID.integratorMax;
 	}
-	if(iError>=150)
+      else if (FC_T_PID.iError <= FC_T_PID.integratorMin)
 	{
-		iError=150;
+	  FC_T_PID.iError = FC_T_PID.integratorMin;
 	}
-	value=Kp*error+Ki*iError+Kd*dError;
-	if(fcTemp<setTemp)
+      FC_T_PID.integrator = FC_T_PID.iError * FC_T_PID.Ki;
+
+      /*
+       * część różniczkująca
+       */
+
+      FC_T_PID.dError = (FC_T_PID.measurement - FC_T_PID.prevMeasurement)
+	  / (FC_T_PID.PIDtime * FC_T_PID.PIDtimeFactor);
+      FC_T_PID.differentator = FC_T_PID.dError * FC_T_PID.Kd;
+
+      /*
+       * wartość sterująca
+       */
+
+      FC_T_PID.controlValue = FC_T_PID.proportional + FC_T_PID.integrator
+	  + FC_T_PID.differentator;
+      if (FC_T_PID.controlValue >= FC_T_PID.controlMax)
 	{
-		value=0;
+	  FC_T_PID.controlValue = FC_T_PID.controlMax;
 	}
-	if(value>=255)
+      else if (FC_T_PID.controlValue <= FC_T_PID.controlMin)
 	{
-		FANS.controlValue=255;
-	}
-	else
-	{
-		FANS.controlValue=value;
+	  FC_T_PID.controlValue = FC_T_PID.controlMin;
 	}
 
+      /*
+       * Przepisanie
+       */
+
+      FANS.controlValue = FC_T_PID.controlValue;
+      FC_T_PID.lastError = FC_T_PID.error;
+      FC_T_PID.prevMeasurement = FC_T_PID.measurement;
+      time = 0;
+    }
+  else
+    {
+      time++;
+    }
 }

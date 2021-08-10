@@ -1,12 +1,12 @@
 /**
-* @file hydrogreen.h
-* @brief Plik glowny programu
-* @author Piotr Durakiewicz
-* @date 22.10.2020
-* @todo
-* @bug
-* @copyright 2020 HYDROGREEN TEAM
-*/
+ * @file hydrogreen.h
+ * @brief Plik glowny programu
+ * @author Piotr Durakiewicz
+ * @date 22.10.2020
+ * @todo
+ * @bug
+ * @copyright 2020 HYDROGREEN TEAM
+ */
 
 #pragma once
 

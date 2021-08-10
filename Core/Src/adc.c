@@ -110,7 +110,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN3
     PA7     ------> ADC2_IN4
     */
-    GPIO_InitStruct.Pin = SC_VOLTAGE_PIN_Pin|FC_VOLTAGE_PIN_Pin|FC_CURRENT_SENSOR_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin;
+    GPIO_InitStruct.Pin = FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin|FC_VOLTAGE_PIN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -157,7 +157,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN3
     PA7     ------> ADC2_IN4
     */
-    HAL_GPIO_DeInit(GPIOA, SC_VOLTAGE_PIN_Pin|FC_VOLTAGE_PIN_Pin|FC_CURRENT_SENSOR_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin);
+    HAL_GPIO_DeInit(GPIOA, FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin|FC_VOLTAGE_PIN_Pin);
 
     /* ADC2 DMA DeInit */
     HAL_DMA_DeInit(adcHandle->DMA_Handle);
