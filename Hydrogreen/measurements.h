@@ -8,7 +8,10 @@
 #pragma once
 
 #include <stdint-gcc.h>
+#include "adc.h"
 
+extern uint32_t sc_voltage_diff;
+extern uint32_t sc_voltage_diff_value;
 extern uint16_t adcDataToCalculate[4];
 typedef struct
 {

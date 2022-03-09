@@ -1,8 +1,11 @@
-/*
- * Energy_flow.c
- *
- *  Created on: 2 maj 2021
- *      Author: User
+/**
+ * @file measurements.c
+ * @brief Sterownik przeplywu energii
+ * @author Szymon Szewc
+ * @date 22.10.2021
+ * @todo
+ * @bug
+ * @copyright 2021 HYDROGREEN TEAM
  */
 
 #include "Energy_flow.h"
@@ -13,37 +16,101 @@
 #include "pidController.h"
 #include "measurements.h"
 
+uint8_t dupa = 2;
 EnergyFlow hydros;
-static int sample = 0;
-static uint8_t no = 0;
+PID_struct SC_C_regulator;
+//CurrentRegulator SC_C_regulator;
+uint32_t dupaPWM = 0;
+uint8_t dupaStanSC = 0;
+
+static void energyFlow();
+static void energyflow_mode0(void);
+static void energyflow_preapre_to_race(void);
+static void energyflow_race(void);
+static void energyflow_end_race(void);
+static void energyflow_emergency(void);
+static void SC_State(uint8_t state);
+static void SC_Set_charging();
+static void FC_Decharching(uint8_t state);
+static void FC_to_SC_Current_regulator(uint8_t current);
 
 void energyflow_init(void)
 {
+  hydros.HydrosSC.MaxSCCurrent = 10;
+  hydros.HydrosSC.MaxSCVoltage = 37;
+  hydros.HydrosSC.MinSCVoltage = 30;
+  if (VALUES.SC_V.value >= hydros.HydrosSC.MaxSCVoltage)
+    {
+      hydros.HydrosSC.SCstatus = CHARGED;
+    }
+  else if (VALUES.SC_V.value <= hydros.HydrosSC.MinSCVoltage)
+    {
+      hydros.HydrosSC.SCstatus = DECHARGED;
+    }
+  else if (VALUES.SC_V.value > hydros.HydrosSC.MinSCVoltage)
+    {
+      hydros.HydrosSC.SCstatus = NOTFULLCHARGE;
+    }
+  hydros.HydrosFC.MinFCVoltage = 33;
+  FC_T_PID.setValue = 80;
   hydros.charging = 0;
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
   HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, RESET);
+  SC_C_regulator.setValue = 8.6;
+  SC_C_regulator.measurement = 0;
+  SC_C_regulator.prevMeasurement = 0;
+  SC_C_regulator.error = 0;
+  SC_C_regulator.iError = 0;
+  SC_C_regulator.dError = 0;
+  SC_C_regulator.lastError = 0;
+  SC_C_regulator.Kp = 7;
+  SC_C_regulator.Ki = 3;
+  SC_C_regulator.Kd = 0.02;
+  SC_C_regulator.proportional = 0;
+  SC_C_regulator.integrator = 1;
+  SC_C_regulator.differentator = 0;
+  SC_C_regulator.integratorMax = 20;
+  SC_C_regulator.integratorMin = 0;
+  SC_C_regulator.controlMax = 99;
+  SC_C_regulator.controlMin = 0;
+  SC_C_regulator.PIDtime = 0.001;
+  SC_C_regulator.PIDtimeFactor = 1;
+  SC_C_regulator.controlValue = 0;
 }
 
 void energyflow_step(void)
 {
-  sample++;
-  if (sample >= 5000 && no)
+  if (!rs485_flt && !emergency)
     {
-      RS485_RX_VERIFIED_DATA.mode = 1;
-      sample = 0;
-      no = 0;
+      dupa = 1;
+      switch (RS485_RX_VERIFIED_DATA.emergencyScenario)
+	{
+	case 0:
+	  energyFlow();
+	break;
+	case 1:
+	  energyflow_emergency();
+	break;
+	default:
+	  energyflow_emergency();
+	break;
+	}
     }
-  if (sample >= 5000 && !no)
+  else
     {
-      RS485_RX_VERIFIED_DATA.mode = 0;
-      sample = 0;
-      no = 1;
+      energyflow_emergency();
     }
+}
+
+static void energyFlow()
+{
+
   switch (RS485_RX_VERIFIED_DATA.mode)
     {
     case 0:
       energyflow_mode0();
+      dupa = 2;
     break;
 
     case 1:
@@ -64,71 +131,223 @@ void energyflow_step(void)
     }
 }
 
-void energyflow_mode0()
-{
-  FC_T_PID.setValue = 100;
-  hydros.charging = 0;
-  TIM3->CCR3 = hydros.charging;
-  HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
-  HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, RESET);
-}
-
-void energyflow_preapre_to_race()
-{
-  FC_T_PID.setValue = 80;
-  hydros.charging =100;
-  TIM3->CCR3 = hydros.charging;
-  HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, SET);
-  HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, RESET);
-}
-
-void energyflow_race()
+static void energyflow_mode0()
 {
   FC_T_PID.setValue = 60;
+
   switch (RS485_RX_VERIFIED_DATA.scOn)
     {
     case 0:
-      HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
+      SC_State(1);
+      hydros.charging = 0;
+      FC_to_SC_Current_regulator(3);
+      dupaPWM = hydros.charging;
+      SC_Set_charging(hydros.charging);
+      FC_Decharching(0);
     break;
     case 1:
-      HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, SET);
+      SC_State(1);
+      hydros.charging = 0;
+      SC_Set_charging(hydros.charging);
+      FC_Decharching(0);
     break;
     default:
       energyflow_emergency();
     break;
     }
-  if (VALUES.SC_C.value >= 1500)
+}
+
+static void energyflow_preapre_to_race()
+{
+  //FC_T_PID.setValue = 10;
+  FC_T_PID.setValue = 80;
+  hydros.charging = 0;
+  SC_State(1);
+  SC_Set_charging(hydros.charging);
+  FC_Decharching(0);
+}
+
+static void energyflow_race()
+{
+  //FC_T_PID.setValue = 10;
+  FC_T_PID.setValue = 60;
+  FC_Decharching(0);
+  RS485_RX_VERIFIED_DATA.scOn = 0;
+  switch (RS485_RX_VERIFIED_DATA.scOn)
     {
-      hydros.charging = 50;
-      TIM3->CCR3 = hydros.charging;
+    case 0:
+      SC_State(1);
+      hydros.charging = 10;
+      SC_Set_charging(hydros.charging);
+    break;
+    case 1:
+      SC_State(1);
+      if (VALUES.SC_C.value >= 3)
+	{
+	  hydros.charging = 10;
+	}
+      if (VALUES.SC_C.value >= 2.5 && VALUES.SC_C.value < 3)
+	{
+	  hydros.charging = 20;
+	}
+      if (VALUES.SC_C.value >= 1.5 && VALUES.SC_C.value < 2.5)
+	{
+	  hydros.charging = 50;
+	}
+      if (VALUES.SC_C.value >= 1 && VALUES.SC_C.value < 1.5)
+	{
+	  hydros.charging = 100;
+	}
+      if (VALUES.SC_C.value < 1)
+	{
+	  hydros.charging = 100;
+
+	}
+      if (VALUES.SC_C.value < 0)
+	{
+	  hydros.charging = 100;
+	}
+      SC_Set_charging(hydros.charging);
+    break;
+    default:
+      energyflow_emergency();
+    break;
+    }
+}
+
+static void energyflow_end_race()
+{
+  hydros.charging = 0;
+  SC_Set_charging(hydros.charging);
+  SC_State(0);
+  FC_Decharching(0);
+}
+
+static void SC_State(uint8_t state)
+{
+  switch (state)
+    {
+    case 0:
+      HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
+      dupaStanSC = 0;
+    break;
+    case 1:
+      dupaStanSC = 1;
+      HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, SET);
+    break;
+    default:
+    break;
+    }
+}
+
+static void SC_Set_charging(uint32_t charging)
+{
+  TIM3->CCR3 = hydros.charging;
+  dupaPWM = hydros.charging;
+}
+
+static void FC_Decharching(uint8_t state)
+{
+  switch (state)
+    {
+    case 0:
+      HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, RESET);
+    break;
+    case 1:
+      HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, SET);
+    break;
+    default:
+      energyflow_emergency();
+    break;
+    }
+}
+
+static void energyflow_emergency()
+{
+  hydros.charging = 0;
+  SC_Set_charging(hydros.charging);
+  SC_State(0);
+  dupa = 0;
+  switch (RS485_RX_VERIFIED_DATA.mode)
+    {
+    case 1:
+      //FC_Decharching(1);
+      FC_Decharching(0);
+    break;
+    default:
+      FC_Decharching(0);
+    break;
+    }
+}
+
+static void FC_to_SC_Current_regulator(uint8_t current)
+{
+  static uint8_t time = 0;
+  if (time >= SC_C_regulator.PIDtimeFactor)
+    {
+      SC_C_regulator.setValue = current;
+      SC_C_regulator.measurement = VALUES.SC_C.value;
+
+      /*
+       * część proporcjonalna
+       */
+
+      SC_C_regulator.error = SC_C_regulator.setValue
+	  - SC_C_regulator.measurement;
+      SC_C_regulator.proportional = SC_C_regulator.error * SC_C_regulator.Kp;
+
+      /*
+       * część całkująca
+       */
+
+      SC_C_regulator.iError = SC_C_regulator.iError
+	  + SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor * 0.5f
+	      * (SC_C_regulator.error + SC_C_regulator.lastError); //Metoda trapezów suma dwóch następnych błędów podzielona na 2 pomnożona razy czas w [s] (wysokość trapezu)
+      if (SC_C_regulator.iError >= SC_C_regulator.integratorMax)
+	{
+	  SC_C_regulator.iError = SC_C_regulator.integratorMax;
+	}
+      else if (SC_C_regulator.iError <= SC_C_regulator.integratorMin)
+	{
+	  SC_C_regulator.iError = SC_C_regulator.integratorMin;
+	}
+      SC_C_regulator.integrator = SC_C_regulator.iError * SC_C_regulator.Ki;
+
+      /*
+       * część różniczkująca
+       */
+
+      SC_C_regulator.dError = (SC_C_regulator.measurement
+	  - SC_C_regulator.prevMeasurement)
+	  / (SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor);
+      SC_C_regulator.differentator = SC_C_regulator.dError * SC_C_regulator.Kd;
+
+      /*
+       * wartość sterująca
+       */
+
+      SC_C_regulator.controlValue = SC_C_regulator.proportional
+	  + SC_C_regulator.integrator + SC_C_regulator.differentator;
+      if (SC_C_regulator.controlValue >= SC_C_regulator.controlMax)
+	{
+	  SC_C_regulator.controlValue = SC_C_regulator.controlMax;
+	}
+      else if (SC_C_regulator.controlValue <= SC_C_regulator.controlMin)
+	{
+	  SC_C_regulator.controlValue = SC_C_regulator.controlMin;
+	}
+
+      /*
+       * Przepisanie
+       */
+
+      hydros.charging = SC_C_regulator.controlValue;
+      SC_C_regulator.lastError = SC_C_regulator.error;
+      SC_C_regulator.prevMeasurement = SC_C_regulator.measurement;
+      time = 0;
     }
   else
     {
-      hydros.charging = 100;
-      hydros.charging = 50;
-      TIM3->CCR3 = hydros.charging;
+      time++;
     }
-  if (VALUES.SC_V.value >= 3500)
-    {
-      hydros.charging = 0;
-      hydros.charging = 50;
-      TIM3->CCR3 = hydros.charging;
-    }
-  if (VALUES.FC_V.value <= 1500)
-    {
-      hydros.charging = 0;
-      hydros.charging = 50;
-      TIM3->CCR3 = hydros.charging;
-    }
-}
-
-void energyflow_end_race()
-{
-  HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
-  HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, SET);
-}
-
-void energyflow_emergency()
-{
-
 }

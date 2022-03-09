@@ -1,6 +1,6 @@
 Hydrogreen/rs485.o: ../Hydrogreen/rs485.c ../Hydrogreen/rs485.h \
- ../Hydrogreen/measurements.h ../Hydrogreen/fans.h ../Core/Inc/usart.h \
- ../Core/Inc/main.h ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h \
+ ../Hydrogreen/measurements.h ../Core/Inc/adc.h ../Core/Inc/main.h \
+ ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h \
  ../Core/Inc/stm32f3xx_hal_conf.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_def.h \
@@ -34,15 +34,13 @@ Hydrogreen/rs485.o: ../Hydrogreen/rs485.c ../Hydrogreen/rs485.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
- ../Core/Inc/crc.h
+ ../Hydrogreen/fans.h ../Core/Inc/usart.h ../Core/Inc/crc.h
 
 ../Hydrogreen/rs485.h:
 
 ../Hydrogreen/measurements.h:
 
-../Hydrogreen/fans.h:
-
-../Core/Inc/usart.h:
+../Core/Inc/adc.h:
 
 ../Core/Inc/main.h:
 
@@ -113,5 +111,9 @@ Hydrogreen/rs485.o: ../Hydrogreen/rs485.c ../Hydrogreen/rs485.h \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h:
 
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
+
+../Hydrogreen/fans.h:
+
+../Core/Inc/usart.h:
 
 ../Core/Inc/crc.h:

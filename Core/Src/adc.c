@@ -35,7 +35,7 @@ void MX_ADC2_Init(void)
   /** Common config
   */
   hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc2.Init.ContinuousConvMode = ENABLE;
@@ -110,7 +110,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN3
     PA7     ------> ADC2_IN4
     */
-    GPIO_InitStruct.Pin = FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin|FC_VOLTAGE_PIN_Pin;
+    GPIO_InitStruct.Pin = FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|FC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -157,7 +157,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN3
     PA7     ------> ADC2_IN4
     */
-    HAL_GPIO_DeInit(GPIOA, FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin|FC_VOLTAGE_PIN_Pin);
+    HAL_GPIO_DeInit(GPIOA, FC_TEMPERATURE_PIN_Pin|SC_VOLTAGE_PIN_Pin|FC_VOLTAGE_PIN_Pin|SC_CURRENT_SENSOR_PIN_Pin);
 
     /* ADC2 DMA DeInit */
     HAL_DMA_DeInit(adcHandle->DMA_Handle);

@@ -14,9 +14,9 @@ PID_struct FC_T_PID;
 
 void PID_init()
 {
-  FC_T_PID.Kp = 1.9;
-  FC_T_PID.Ki = 0.2;
-  FC_T_PID.Kd = 0.0002;
+  FC_T_PID.Kp = 3.9;
+  FC_T_PID.Ki = 1.2;
+  FC_T_PID.Kd = 0.0012;
   FC_T_PID.controlValue = 0;
   FC_T_PID.error = 0;
   FC_T_PID.iError = 0;

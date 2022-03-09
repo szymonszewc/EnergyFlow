@@ -34,7 +34,7 @@ Hydrogreen/fans.o: ../Hydrogreen/fans.c ../Hydrogreen/fans.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
- ../Core/Inc/tim.h
+ ../Core/Inc/tim.h ../Hydrogreen/rs485.h
 
 ../Hydrogreen/fans.h:
 
@@ -111,3 +111,5 @@ Hydrogreen/fans.o: ../Hydrogreen/fans.c ../Hydrogreen/fans.h \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
 
 ../Core/Inc/tim.h:
+
+../Hydrogreen/rs485.h:

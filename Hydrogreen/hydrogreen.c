@@ -56,6 +56,7 @@ static inline void hydrogreen_step1kHz(void)
   fansStep();
   PIDstep();
   adc_step();
+  motor_set_PWM();
 #ifdef HYDROGREEN_DEBUG
   HAL_GPIO_WritePin(GPIOA, DBG_Pin, GPIO_PIN_SET);
 #endif
@@ -67,7 +68,7 @@ static inline void hydrogreen_step1kHz(void)
  */
 static inline void hydrogreen_step10kHz(void)
 {
-  //rs485_step();
+  rs485_step();
 }
 
 /**

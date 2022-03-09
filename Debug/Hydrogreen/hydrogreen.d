@@ -1,8 +1,7 @@
 Hydrogreen/hydrogreen.o: ../Hydrogreen/hydrogreen.c \
  ../Hydrogreen/hydrogreen.h ../Hydrogreen/timers.h \
  ../Hydrogreen/watchdog.h ../Hydrogreen/rs485.h ../Hydrogreen/fans.h \
- ../Hydrogreen/measurements.h ../Hydrogreen/pidController.h \
- ../Core/Inc/gpio.h ../Core/Inc/main.h \
+ ../Hydrogreen/measurements.h ../Core/Inc/adc.h ../Core/Inc/main.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h \
  ../Core/Inc/stm32f3xx_hal_conf.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h \
@@ -37,7 +36,8 @@ Hydrogreen/hydrogreen.o: ../Hydrogreen/hydrogreen.c \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
- ../Hydrogreen/motor.h ../Hydrogreen/Energy_flow.h
+ ../Hydrogreen/pidController.h ../Core/Inc/gpio.h ../Hydrogreen/motor.h \
+ ../Hydrogreen/Energy_flow.h
 
 ../Hydrogreen/hydrogreen.h:
 
@@ -51,9 +51,7 @@ Hydrogreen/hydrogreen.o: ../Hydrogreen/hydrogreen.c \
 
 ../Hydrogreen/measurements.h:
 
-../Hydrogreen/pidController.h:
-
-../Core/Inc/gpio.h:
+../Core/Inc/adc.h:
 
 ../Core/Inc/main.h:
 
@@ -124,6 +122,10 @@ Hydrogreen/hydrogreen.o: ../Hydrogreen/hydrogreen.c \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h:
 
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
+
+../Hydrogreen/pidController.h:
+
+../Core/Inc/gpio.h:
 
 ../Hydrogreen/motor.h:
 

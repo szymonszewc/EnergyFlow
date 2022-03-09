@@ -35,7 +35,8 @@ Hydrogreen/Energy_flow.o: ../Hydrogreen/Energy_flow.c \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
  ../Core/Inc/tim.h ../Hydrogreen/rs485.h ../Hydrogreen/fans.h \
- ../Hydrogreen/pidController.h ../Hydrogreen/measurements.h
+ ../Hydrogreen/pidController.h ../Hydrogreen/measurements.h \
+ ../Core/Inc/adc.h
 
 ../Hydrogreen/Energy_flow.h:
 
@@ -120,3 +121,5 @@ Hydrogreen/Energy_flow.o: ../Hydrogreen/Energy_flow.c \
 ../Hydrogreen/pidController.h:
 
 ../Hydrogreen/measurements.h:
+
+../Core/Inc/adc.h:

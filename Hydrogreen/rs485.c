@@ -185,7 +185,7 @@ static void sendData(void)
 static void receiveData(void)
 {
 
-  //static uint32_t rejectedFramesInRow=0;							//Zmienna przechowujaca liczbe straconych ramek z rzedu
+  //static uint32_t rejectedFramesInRow=0;	//Zmienna przechowujaca liczbe straconych ramek z rzedu
   static uint32_t cntEndOfRxTick = 0;//Zmienna wykorzystywana do odliczenia czasu wskazujacego na koniec transmisji
 
   //Sprawdz czy otrzymano nowe dane
@@ -212,11 +212,11 @@ static void receiveData(void)
 
       //OBLICZ SUME KONTROLNA
       //uint8_t crcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataFromRx, (RX_FRAME_LENGHT - 2));
-      uint8_t crcSumOnMCU = crc_calc();
+      //  uint8_t crcSumOnMCU = crc_calc();
 
       //Sprawdz czy sumy kontrolne oraz bajt EOT (End Of Tranmission) sie zgadzaja
       if ((dataFromRx[RX_FRAME_LENGHT - 2] == EOT_BYTE)
-	  && (crcSumOnMCU == dataFromRx[RX_FRAME_LENGHT - 1]))
+	  && (crc_calc() == dataFromRx[RX_FRAME_LENGHT - 1]))
 	{
 	  processReceivedData();
 	  rs485_flt = RS485_FLT_NONE;
@@ -286,32 +286,10 @@ static void prepareNewDataToSend(void)
   dataToTx[++j] = VALUES.SC_V.array[1];
   dataToTx[++j] = VALUES.SC_V.array[2];
   dataToTx[++j] = VALUES.SC_V.array[3];
-  dataToTx[++j] = 2;
-  dataToTx[++j] = 2;
-
-  /*dataToTx[j] = 1;
-   dataToTx[++j] = 2;
-   dataToTx[++j] = 3;
-   dataToTx[++j] = 4;
-   dataToTx[++j] = 5;
-   dataToTx[++j] = 6;
-   dataToTx[++j] = 7;
-   dataToTx[++j] = 8;
-   dataToTx[++j] = 9;
-   dataToTx[++j] = 10;
-   dataToTx[++j] = 11;
-   dataToTx[++j] = 12;
-   dataToTx[++j] = 13;
-   dataToTx[++j] = 14;
-   dataToTx[++j] = 15;
-   dataToTx[++j] = 16;
-   dataToTx[++j] = 17;
-   dataToTx[++j] = 18;
-   dataToTx[++j] = 19;
-   dataToTx[++j] = emergency;*/
+  dataToTx[++j] = FANS.fanstors485.rpmtoRS[0];
+  dataToTx[++j] = FANS.fanstors485.rpmtoRS[1];
   dataToTx[++j] = EOT_BYTE;
   //OBLICZ SUME KONTROLNA
-  //uint8_t calculatedCrcSumOnMCU = HAL_CRC_Calculate(&hcrc, (uint32_t*)dataToTx, (TX_FRAME_LENGHT - 2) );
   uint8_t calculatedCrcSumOnMCU = crc_calc_TX();
 
   SumaKontrolnaBoKtosMimeczyDupe = crc_calc_TX();
@@ -326,10 +304,21 @@ static void prepareNewDataToSend(void)
 static void processReceivedData(void)
 {
   uint8_t i = 0;
-  RS485_RX_VERIFIED_DATA.motorPWM = dataFromRx[i];
-  RS485_RX_VERIFIED_DATA.mode = dataFromRx[++i];
+  RS485_RX_VERIFIED_DATA.mode = dataFromRx[i];
   RS485_RX_VERIFIED_DATA.scOn = dataFromRx[++i];
   RS485_RX_VERIFIED_DATA.emergencyScenario = dataFromRx[++i];
+  RS485_RX_VERIFIED_DATA.motorPWM = dataFromRx[++i];
+  switch (emergency)
+    {
+    case 0:
+      emergency = RS485_RX_VERIFIED_DATA.emergencyScenario;
+    break;
+    case 1:
+      emergency = emergency;
+    break;
+    default:
+    break;
+    }
 }
 
 /**
@@ -340,6 +329,7 @@ static void resetActData(void)
 {
   RS485_RX_VERIFIED_DATA.motorPWM = 0;
   RS485_RX_VERIFIED_DATA.mode = 0;
-  RS485_RX_VERIFIED_DATA.scOn = 0;
   RS485_RX_VERIFIED_DATA.emergencyScenario = 0;
+  RS485_RX_VERIFIED_DATA.scOn = 0;
 }
+
