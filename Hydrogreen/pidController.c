@@ -22,7 +22,7 @@ void PID_init()
   FC_T_PID.iError = 0;
   FC_T_PID.dError = 0;
   FC_T_PID.lastError = 0;
-  FC_T_PID.setValue = 100; //Temperatura w st Celsjusza
+  FC_T_PID.setValue = 50; //Temperatura w st Celsjusza
   FC_T_PID.measurement = 0;
   FC_T_PID.prevMeasurement = 0;
   FC_T_PID.proportional = 0;
@@ -93,7 +93,8 @@ void PIDstep()
        * Przepisanie
        */
 
-      FANS.controlValue = FC_T_PID.controlValue;
+      //FANS.controlValue = FC_T_PID.controlValue;
+      FANS.controlValue = 255;
       FC_T_PID.lastError = FC_T_PID.error;
       FC_T_PID.prevMeasurement = FC_T_PID.measurement;
       time = 0;

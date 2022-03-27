@@ -17931,7 +17931,7 @@ static void energyflow_mode0()
 {
  8006a78:	b580      	push	{r7, lr}
  8006a7a:	af00      	add	r7, sp, #0
-  FC_T_PID.setValue = 60;
+  FC_T_PID.setValue = 50;
  8006a7c:	4b19      	ldr	r3, [pc, #100]	; (8006ae4 <energyflow_mode0+0x6c>)
  8006a7e:	4a1a      	ldr	r2, [pc, #104]	; (8006ae8 <energyflow_mode0+0x70>)
  8006a80:	601a      	str	r2, [r3, #0]
@@ -17999,7 +17999,7 @@ static void energyflow_mode0()
  8006ae0:	bf00      	nop
  8006ae2:	bd80      	pop	{r7, pc}
  8006ae4:	200004dc 	.word	0x200004dc
- 8006ae8:	42700000 	.word	0x42700000
+ 8006ae8:	42480000 	.word	0x42480000
  8006aec:	2000052c 	.word	0x2000052c
  8006af0:	2000046c 	.word	0x2000046c
  8006af4:	20000030 	.word	0x20000030
@@ -18011,7 +18011,7 @@ static void energyflow_preapre_to_race()
  8006af8:	b580      	push	{r7, lr}
  8006afa:	af00      	add	r7, sp, #0
   //FC_T_PID.setValue = 10;
-  FC_T_PID.setValue = 80;
+  FC_T_PID.setValue = 50;
  8006afc:	4b09      	ldr	r3, [pc, #36]	; (8006b24 <energyflow_preapre_to_race+0x2c>)
  8006afe:	4a0a      	ldr	r2, [pc, #40]	; (8006b28 <energyflow_preapre_to_race+0x30>)
  8006b00:	601a      	str	r2, [r3, #0]
@@ -18035,7 +18035,7 @@ static void energyflow_preapre_to_race()
  8006b20:	bd80      	pop	{r7, pc}
  8006b22:	bf00      	nop
  8006b24:	200004dc 	.word	0x200004dc
- 8006b28:	42a00000 	.word	0x42a00000
+ 8006b28:	42480000 	.word	0x42480000
  8006b2c:	2000046c 	.word	0x2000046c
 
 08006b30 <energyflow_race>:
@@ -18045,7 +18045,7 @@ static void energyflow_race()
  8006b30:	b580      	push	{r7, lr}
  8006b32:	af00      	add	r7, sp, #0
   //FC_T_PID.setValue = 10;
-  FC_T_PID.setValue = 60;
+  FC_T_PID.setValue = 50;
  8006b34:	4b49      	ldr	r3, [pc, #292]	; (8006c5c <energyflow_race+0x12c>)
  8006b36:	4a4a      	ldr	r2, [pc, #296]	; (8006c60 <energyflow_race+0x130>)
  8006b38:	601a      	str	r2, [r3, #0]
@@ -18197,7 +18197,7 @@ static void energyflow_race()
  8006c58:	bf00      	nop
  8006c5a:	bd80      	pop	{r7, pc}
  8006c5c:	200004dc 	.word	0x200004dc
- 8006c60:	42700000 	.word	0x42700000
+ 8006c60:	42480000 	.word	0x42480000
  8006c64:	2000052c 	.word	0x2000052c
  8006c68:	2000046c 	.word	0x2000046c
  8006c6c:	2000048c 	.word	0x2000048c
@@ -19346,7 +19346,7 @@ void PID_init()
  8007428:	4b19      	ldr	r3, [pc, #100]	; (8007490 <PID_init+0x9c>)
  800742a:	f04f 0200 	mov.w	r2, #0
  800742e:	619a      	str	r2, [r3, #24]
-  FC_T_PID.setValue = 100; //Temperatura w st Celsjusza
+  FC_T_PID.setValue = 50; //Temperatura w st Celsjusza
  8007430:	4b17      	ldr	r3, [pc, #92]	; (8007490 <PID_init+0x9c>)
  8007432:	4a1b      	ldr	r2, [pc, #108]	; (80074a0 <PID_init+0xac>)
  8007434:	601a      	str	r2, [r3, #0]
@@ -19403,7 +19403,7 @@ void PID_init()
  8007494:	4079999a 	.word	0x4079999a
  8007498:	3f99999a 	.word	0x3f99999a
  800749c:	3a9d4952 	.word	0x3a9d4952
- 80074a0:	42c80000 	.word	0x42c80000
+ 80074a0:	42480000 	.word	0x42480000
  80074a4:	43160000 	.word	0x43160000
  80074a8:	c2480000 	.word	0xc2480000
  80074ac:	437f0000 	.word	0x437f0000
@@ -19424,7 +19424,7 @@ void PIDstep()
  80074c6:	edd3 7a12 	vldr	s15, [r3, #72]	; 0x48
  80074ca:	eeb4 7ae7 	vcmpe.f32	s14, s15
  80074ce:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80074d2:	f2c0 80d4 	blt.w	800767e <PIDstep+0x1ca>
+ 80074d2:	f2c0 80d3 	blt.w	800767c <PIDstep+0x1c8>
     {
       FC_T_PID.measurement = VALUES.FC_TEMP.value;
  80074d6:	4b71      	ldr	r3, [pc, #452]	; (800769c <PIDstep+0x1e8>)
@@ -19606,49 +19606,49 @@ void PIDstep()
  8007656:	ee17 2a90 	vmov	r2, s15
  800765a:	4b0f      	ldr	r3, [pc, #60]	; (8007698 <PIDstep+0x1e4>)
  800765c:	64da      	str	r2, [r3, #76]	; 0x4c
-
       /*
        * Przepisanie
        */
 
-      FANS.controlValue = FC_T_PID.controlValue;
- 800765e:	4b0e      	ldr	r3, [pc, #56]	; (8007698 <PIDstep+0x1e4>)
- 8007660:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
- 8007662:	4a0f      	ldr	r2, [pc, #60]	; (80076a0 <PIDstep+0x1ec>)
- 8007664:	6053      	str	r3, [r2, #4]
+      //FANS.controlValue = FC_T_PID.controlValue;
+      FANS.controlValue = 255;
+ 800765e:	4b10      	ldr	r3, [pc, #64]	; (80076a0 <PIDstep+0x1ec>)
+ 8007660:	22ff      	movs	r2, #255	; 0xff
+ 8007662:	605a      	str	r2, [r3, #4]
       FC_T_PID.lastError = FC_T_PID.error;
- 8007666:	4b0c      	ldr	r3, [pc, #48]	; (8007698 <PIDstep+0x1e4>)
- 8007668:	68db      	ldr	r3, [r3, #12]
- 800766a:	4a0b      	ldr	r2, [pc, #44]	; (8007698 <PIDstep+0x1e4>)
- 800766c:	6193      	str	r3, [r2, #24]
+ 8007664:	4b0c      	ldr	r3, [pc, #48]	; (8007698 <PIDstep+0x1e4>)
+ 8007666:	68db      	ldr	r3, [r3, #12]
+ 8007668:	4a0b      	ldr	r2, [pc, #44]	; (8007698 <PIDstep+0x1e4>)
+ 800766a:	6193      	str	r3, [r2, #24]
       FC_T_PID.prevMeasurement = FC_T_PID.measurement;
- 800766e:	4b0a      	ldr	r3, [pc, #40]	; (8007698 <PIDstep+0x1e4>)
- 8007670:	685b      	ldr	r3, [r3, #4]
- 8007672:	4a09      	ldr	r2, [pc, #36]	; (8007698 <PIDstep+0x1e4>)
- 8007674:	6093      	str	r3, [r2, #8]
+ 800766c:	4b0a      	ldr	r3, [pc, #40]	; (8007698 <PIDstep+0x1e4>)
+ 800766e:	685b      	ldr	r3, [r3, #4]
+ 8007670:	4a09      	ldr	r2, [pc, #36]	; (8007698 <PIDstep+0x1e4>)
+ 8007672:	6093      	str	r3, [r2, #8]
       time = 0;
- 8007676:	4b07      	ldr	r3, [pc, #28]	; (8007694 <PIDstep+0x1e0>)
- 8007678:	2200      	movs	r2, #0
- 800767a:	701a      	strb	r2, [r3, #0]
+ 8007674:	4b07      	ldr	r3, [pc, #28]	; (8007694 <PIDstep+0x1e0>)
+ 8007676:	2200      	movs	r2, #0
+ 8007678:	701a      	strb	r2, [r3, #0]
     }
   else
     {
       time++;
     }
 }
- 800767c:	e005      	b.n	800768a <PIDstep+0x1d6>
+ 800767a:	e005      	b.n	8007688 <PIDstep+0x1d4>
       time++;
- 800767e:	4b05      	ldr	r3, [pc, #20]	; (8007694 <PIDstep+0x1e0>)
- 8007680:	781b      	ldrb	r3, [r3, #0]
- 8007682:	3301      	adds	r3, #1
- 8007684:	b2da      	uxtb	r2, r3
- 8007686:	4b03      	ldr	r3, [pc, #12]	; (8007694 <PIDstep+0x1e0>)
- 8007688:	701a      	strb	r2, [r3, #0]
+ 800767c:	4b05      	ldr	r3, [pc, #20]	; (8007694 <PIDstep+0x1e0>)
+ 800767e:	781b      	ldrb	r3, [r3, #0]
+ 8007680:	3301      	adds	r3, #1
+ 8007682:	b2da      	uxtb	r2, r3
+ 8007684:	4b03      	ldr	r3, [pc, #12]	; (8007694 <PIDstep+0x1e0>)
+ 8007686:	701a      	strb	r2, [r3, #0]
 }
- 800768a:	bf00      	nop
- 800768c:	46bd      	mov	sp, r7
- 800768e:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8007692:	4770      	bx	lr
+ 8007688:	bf00      	nop
+ 800768a:	46bd      	mov	sp, r7
+ 800768c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8007690:	4770      	bx	lr
+ 8007692:	bf00      	nop
  8007694:	20000039 	.word	0x20000039
  8007698:	200004dc 	.word	0x200004dc
  800769c:	2000048c 	.word	0x2000048c

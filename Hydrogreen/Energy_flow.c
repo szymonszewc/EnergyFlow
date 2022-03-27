@@ -133,7 +133,7 @@ static void energyFlow()
 
 static void energyflow_mode0()
 {
-  FC_T_PID.setValue = 60;
+  FC_T_PID.setValue = 50;
 
   switch (RS485_RX_VERIFIED_DATA.scOn)
     {
@@ -160,7 +160,7 @@ static void energyflow_mode0()
 static void energyflow_preapre_to_race()
 {
   //FC_T_PID.setValue = 10;
-  FC_T_PID.setValue = 80;
+  FC_T_PID.setValue = 50;
   hydros.charging = 0;
   SC_State(1);
   SC_Set_charging(hydros.charging);
@@ -170,7 +170,7 @@ static void energyflow_preapre_to_race()
 static void energyflow_race()
 {
   //FC_T_PID.setValue = 10;
-  FC_T_PID.setValue = 60;
+  FC_T_PID.setValue = 50;
   FC_Decharching(0);
   RS485_RX_VERIFIED_DATA.scOn = 0;
   switch (RS485_RX_VERIFIED_DATA.scOn)
