@@ -10,7 +10,7 @@
 
 #include "adc.h"
 #include "measurements.h"
-
+#include "rs485.h"
 #define adcChannel hadc2
 
 uint16_t adcDataToCalculate[4];
@@ -67,5 +67,9 @@ void adc_step()
 {
   calculateValues();
   averaging_Values();
+  if(VALUES.SC_C.value >= 10)
+    {
+      emergency = 0;
+    }
 }
 

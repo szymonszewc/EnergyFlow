@@ -72,7 +72,7 @@ void energyflow_init(void)
   SC_C_regulator.differentator = 0;
   SC_C_regulator.integratorMax = 20;
   SC_C_regulator.integratorMin = 0;
-  SC_C_regulator.controlMax = 99;
+  SC_C_regulator.controlMax = 75;
   SC_C_regulator.controlMin = 0;
   SC_C_regulator.PIDtime = 0.001;
   SC_C_regulator.PIDtimeFactor = 1;
@@ -90,10 +90,14 @@ void energyflow_step(void)
 	  energyFlow();
 	break;
 	case 1:
-	  energyflow_emergency();
+	  //energyflow_emergency();
+	  energyFlow();
+
 	break;
 	default:
-	  energyflow_emergency();
+	  //energyflow_emergency();
+	  energyFlow();
+
 	break;
 	}
     }
@@ -138,17 +142,16 @@ static void energyflow_mode0()
   switch (RS485_RX_VERIFIED_DATA.scOn)
     {
     case 0:
-      SC_State(1);
-      hydros.charging = 0;
+      SC_State(0);
+      //hydros.charging = 0;
       FC_to_SC_Current_regulator(3);
       dupaPWM = hydros.charging;
-      SC_Set_charging(hydros.charging);
       FC_Decharching(0);
     break;
     case 1:
       SC_State(1);
       hydros.charging = 0;
-      SC_Set_charging(hydros.charging);
+      FC_to_SC_Current_regulator(3);
       FC_Decharching(0);
     break;
     default:
@@ -162,9 +165,10 @@ static void energyflow_preapre_to_race()
   //FC_T_PID.setValue = 10;
   FC_T_PID.setValue = 50;
   hydros.charging = 0;
-  SC_State(1);
-  SC_Set_charging(hydros.charging);
-  FC_Decharching(0);
+  SC_State(0);
+  FC_to_SC_Current_regulator(0);
+  //SC_Set_charging(hydros.charging);
+  FC_Decharching(1);
 }
 
 static void energyflow_race()
@@ -172,42 +176,16 @@ static void energyflow_race()
   //FC_T_PID.setValue = 10;
   FC_T_PID.setValue = 50;
   FC_Decharching(0);
-  RS485_RX_VERIFIED_DATA.scOn = 0;
+  //RS485_RX_VERIFIED_DATA.scOn = 0;
   switch (RS485_RX_VERIFIED_DATA.scOn)
     {
     case 0:
-      SC_State(1);
-      hydros.charging = 10;
-      SC_Set_charging(hydros.charging);
+      SC_State(0);
+      FC_to_SC_Current_regulator(5);
     break;
     case 1:
       SC_State(1);
-      if (VALUES.SC_C.value >= 3)
-	{
-	  hydros.charging = 10;
-	}
-      if (VALUES.SC_C.value >= 2.5 && VALUES.SC_C.value < 3)
-	{
-	  hydros.charging = 20;
-	}
-      if (VALUES.SC_C.value >= 1.5 && VALUES.SC_C.value < 2.5)
-	{
-	  hydros.charging = 50;
-	}
-      if (VALUES.SC_C.value >= 1 && VALUES.SC_C.value < 1.5)
-	{
-	  hydros.charging = 100;
-	}
-      if (VALUES.SC_C.value < 1)
-	{
-	  hydros.charging = 100;
-
-	}
-      if (VALUES.SC_C.value < 0)
-	{
-	  hydros.charging = 100;
-	}
-      SC_Set_charging(hydros.charging);
+      FC_to_SC_Current_regulator(5);
     break;
     default:
       energyflow_emergency();
@@ -236,6 +214,8 @@ static void SC_State(uint8_t state)
       HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, SET);
     break;
     default:
+      HAL_GPIO_WritePin(SC_ON_GPIO_Port, SC_ON_Pin, RESET);
+      dupaStanSC = 0;
     break;
     }
 }
@@ -251,10 +231,10 @@ static void FC_Decharching(uint8_t state)
   switch (state)
     {
     case 0:
-      HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, RESET);
+      HAL_GPIO_WritePin(PURGING_GPIO_Port, PURGING_Pin, RESET);
     break;
     case 1:
-      HAL_GPIO_WritePin(FC_DECHARGING_GPIO_Port, FC_DECHARGING_Pin, SET);
+      HAL_GPIO_WritePin(PURGING_GPIO_Port, PURGING_Pin, SET);
     break;
     default:
       energyflow_emergency();
@@ -341,9 +321,25 @@ static void FC_to_SC_Current_regulator(uint8_t current)
        * Przepisanie
        */
 
-      hydros.charging = SC_C_regulator.controlValue;
+      ;
       SC_C_regulator.lastError = SC_C_regulator.error;
       SC_C_regulator.prevMeasurement = SC_C_regulator.measurement;
+      if(!RS485_RX_VERIFIED_DATA.emergencyScenario)
+	{
+	  hydros.charging = SC_C_regulator.controlValue;
+	  dupaPWM = hydros.charging;
+	      SC_Set_charging(hydros.charging);
+	      if(VALUES.SC_C.value >= 40)
+		{
+		  SC_Set_charging(100);
+		}
+	}
+      else
+	{
+	  hydros.charging = 0;
+	      SC_Set_charging(0);
+	      dupaPWM = 0;
+	}
       time = 0;
     }
   else

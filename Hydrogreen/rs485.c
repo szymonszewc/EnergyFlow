@@ -18,8 +18,8 @@
 
 #define UART_PORT_RS485 		huart2
 #define TX_FRAME_LENGHT 		21		         	///< Dlugosc wysylanej ramki danych (z suma CRC)
-#define RX_FRAME_LENGHT 		6					///< Dlugosc otrzymywanej ramki danych (z suma CRC)
-#define EOT_BYTE				0x17				///< Bajt wskazujacy na koniec ramki
+#define RX_FRAME_LENGHT 		6				///< Dlugosc otrzymywanej ramki danych (z suma CRC)
+#define EOT_BYTE			0x17				///< Bajt wskazujacy na koniec ramki
 
 // ******************************************************************************************************************************************************** //
 
@@ -311,7 +311,7 @@ static void processReceivedData(void)
   switch (emergency)
     {
     case 0:
-      emergency = RS485_RX_VERIFIED_DATA.emergencyScenario;
+     // emergency = RS485_RX_VERIFIED_DATA.emergencyScenario;
     break;
     case 1:
       emergency = emergency;

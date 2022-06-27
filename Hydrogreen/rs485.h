@@ -17,7 +17,7 @@
 #define RS485_NEW_DATA_TIMEOUT 0x11		//bylo 0x11		///< Nie otrzymano nowych dane (polaczenie zostalo zerwane)
 
 extern uint8_t rs485_flt; ///< Zmienna przechowujaca aktualny kod bledu magistrali
-extern uint8_t emergency;
+extern uint8_t emergency; //Zmienna sygnalizujaca blad
 extern uint32_t rejectedFramesInRow;
 // ******************************************************************************************************************************************************** //
 
@@ -38,7 +38,7 @@ typedef struct
 
   uint8_t motorPWM;
   uint8_t mode;
-  uint8_t scOn;
+  uint8_t scOn; //Mozliwe stany: 1- tranzystor moze byc otwarty otwarty/0 -tranzystor zamkniety
   uint8_t emergencyScenario;
 } RS485_RECEIVED_VERIFIED_DATA;
 extern RS485_RECEIVED_VERIFIED_DATA RS485_RX_VERIFIED_DATA;

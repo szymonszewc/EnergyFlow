@@ -19,27 +19,31 @@ void motor_init(void)
 
 void motor_set_PWM(void)
 {
+  //if (!rs485_flt && !emergency)
+    //{
+      //if (RS485_RX_VERIFIED_DATA.motorPWM >= 100)
+	//{
+	  //motorPWM = 20;
+	//}
+      //else if (RS485_RX_VERIFIED_DATA.motorPWM < 0)
+	//{
+	  //motorPWM = 0;
+	//}
+      //else
+	//{
+
+
   if (!rs485_flt && !emergency)
-   /* {
-      if (RS485_RX_VERIFIED_DATA.motorPWM >= 100)
-	{
-	  motorPWM = 20;
-	}
-      else
-	{
-	  if (RS485_RX_VERIFIED_DATA.motorPWM < 0)
-	    {
-	      motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;;
-	    }
-	  else
-	    {
-	      motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;
-	    }
-	}
-    }*/
-    motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;
+    {
+	  motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;
+    }
   else
     {
-      motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;
-    }
+      motorPWM = 0;
+    }	//}
+   // }
+ // else
+    //{
+      //motorPWM = RS485_RX_VERIFIED_DATA.motorPWM;
+    //}
 }

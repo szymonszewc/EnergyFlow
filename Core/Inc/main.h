@@ -83,6 +83,8 @@ void Error_Handler(void);
 #define FAN_PWM_TIM_GPIO_Port GPIOA
 #define SC_ON_Pin GPIO_PIN_9
 #define SC_ON_GPIO_Port GPIOA
+#define PURGING_Pin GPIO_PIN_10
+#define PURGING_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

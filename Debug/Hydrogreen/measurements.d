@@ -33,7 +33,7 @@ Hydrogreen/measurements.o: ../Hydrogreen/measurements.c ../Core/Inc/adc.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
- ../Hydrogreen/measurements.h
+ ../Hydrogreen/measurements.h ../Hydrogreen/rs485.h
 
 ../Core/Inc/adc.h:
 
@@ -108,3 +108,5 @@ Hydrogreen/measurements.o: ../Hydrogreen/measurements.c ../Core/Inc/adc.h \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
 
 ../Hydrogreen/measurements.h:
+
+../Hydrogreen/rs485.h:
