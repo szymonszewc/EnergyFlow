@@ -263,87 +263,96 @@ static void energyflow_emergency()
 static void FC_to_SC_Current_regulator(uint8_t current)
 {
   static uint8_t time = 0;
-  if (time >= SC_C_regulator.PIDtimeFactor)
+  if (RS485_RX_VERIFIED_DATA.motorPWM == 0)
     {
-      SC_C_regulator.setValue = current;
-      SC_C_regulator.measurement = VALUES.SC_C.value;
-
-      /*
-       * część proporcjonalna
-       */
-
-      SC_C_regulator.error = SC_C_regulator.setValue
-	  - SC_C_regulator.measurement;
-      SC_C_regulator.proportional = SC_C_regulator.error * SC_C_regulator.Kp;
-
-      /*
-       * część całkująca
-       */
-
-      SC_C_regulator.iError = SC_C_regulator.iError
-	  + SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor * 0.5f
-	      * (SC_C_regulator.error + SC_C_regulator.lastError); //Metoda trapezów suma dwóch następnych błędów podzielona na 2 pomnożona razy czas w [s] (wysokość trapezu)
-      if (SC_C_regulator.iError >= SC_C_regulator.integratorMax)
+      if (time >= SC_C_regulator.PIDtimeFactor)
 	{
-	  SC_C_regulator.iError = SC_C_regulator.integratorMax;
-	}
-      else if (SC_C_regulator.iError <= SC_C_regulator.integratorMin)
-	{
-	  SC_C_regulator.iError = SC_C_regulator.integratorMin;
-	}
-      SC_C_regulator.integrator = SC_C_regulator.iError * SC_C_regulator.Ki;
+	  SC_C_regulator.setValue = current;
+	  SC_C_regulator.measurement = VALUES.SC_C.value;
 
-      /*
-       * część różniczkująca
-       */
+	  /*
+	   * część proporcjonalna
+	   */
 
-      SC_C_regulator.dError = (SC_C_regulator.measurement
-	  - SC_C_regulator.prevMeasurement)
-	  / (SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor);
-      SC_C_regulator.differentator = SC_C_regulator.dError * SC_C_regulator.Kd;
+	  SC_C_regulator.error = SC_C_regulator.setValue
+	      - SC_C_regulator.measurement;
+	  SC_C_regulator.proportional = SC_C_regulator.error
+	      * SC_C_regulator.Kp;
 
-      /*
-       * wartość sterująca
-       */
+	  /*
+	   * część całkująca
+	   */
 
-      SC_C_regulator.controlValue = SC_C_regulator.proportional
-	  + SC_C_regulator.integrator + SC_C_regulator.differentator;
-      if (SC_C_regulator.controlValue >= SC_C_regulator.controlMax)
-	{
-	  SC_C_regulator.controlValue = SC_C_regulator.controlMax;
-	}
-      else if (SC_C_regulator.controlValue <= SC_C_regulator.controlMin)
-	{
-	  SC_C_regulator.controlValue = SC_C_regulator.controlMin;
-	}
+	  SC_C_regulator.iError = SC_C_regulator.iError
+	      + SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor * 0.5f
+		  * (SC_C_regulator.error + SC_C_regulator.lastError); //Metoda trapezów suma dwóch następnych błędów podzielona na 2 pomnożona razy czas w [s] (wysokość trapezu)
+	  if (SC_C_regulator.iError >= SC_C_regulator.integratorMax)
+	    {
+	      SC_C_regulator.iError = SC_C_regulator.integratorMax;
+	    }
+	  else if (SC_C_regulator.iError <= SC_C_regulator.integratorMin)
+	    {
+	      SC_C_regulator.iError = SC_C_regulator.integratorMin;
+	    }
+	  SC_C_regulator.integrator = SC_C_regulator.iError * SC_C_regulator.Ki;
 
-      /*
-       * Przepisanie
-       */
+	  /*
+	   * część różniczkująca
+	   */
 
-      ;
-      SC_C_regulator.lastError = SC_C_regulator.error;
-      SC_C_regulator.prevMeasurement = SC_C_regulator.measurement;
-      if(!RS485_RX_VERIFIED_DATA.emergencyScenario)
-	{
-	  hydros.charging = SC_C_regulator.controlValue;
-	  dupaPWM = hydros.charging;
+	  SC_C_regulator.dError = (SC_C_regulator.measurement
+	      - SC_C_regulator.prevMeasurement)
+	      / (SC_C_regulator.PIDtime * SC_C_regulator.PIDtimeFactor);
+	  SC_C_regulator.differentator = SC_C_regulator.dError
+	      * SC_C_regulator.Kd;
+
+	  /*
+	   * wartość sterująca
+	   */
+
+	  SC_C_regulator.controlValue = SC_C_regulator.proportional
+	      + SC_C_regulator.integrator + SC_C_regulator.differentator;
+	  if (SC_C_regulator.controlValue >= SC_C_regulator.controlMax)
+	    {
+	      SC_C_regulator.controlValue = SC_C_regulator.controlMax;
+	    }
+	  else if (SC_C_regulator.controlValue <= SC_C_regulator.controlMin)
+	    {
+	      SC_C_regulator.controlValue = SC_C_regulator.controlMin;
+	    }
+
+	  /*
+	   * Przepisanie
+	   */
+
+	  ;
+	  SC_C_regulator.lastError = SC_C_regulator.error;
+	  SC_C_regulator.prevMeasurement = SC_C_regulator.measurement;
+	  if (!RS485_RX_VERIFIED_DATA.emergencyScenario)
+	    {
+	      hydros.charging = SC_C_regulator.controlValue;
+	      dupaPWM = hydros.charging;
 	      SC_Set_charging(hydros.charging);
-	      if(VALUES.SC_C.value >= 40)
+	      if (VALUES.SC_C.value >= 40)
 		{
 		  SC_Set_charging(100);
 		}
+	    }
+	  else
+	    {
+	      hydros.charging = 0;
+	      SC_Set_charging(0);
+	      dupaPWM = 0;
+	    }
+	  time = 0;
 	}
       else
 	{
-	  hydros.charging = 0;
-	      SC_Set_charging(0);
-	      dupaPWM = 0;
+	  time++;
 	}
-      time = 0;
     }
   else
     {
-      time++;
+      SC_Set_charging(100);
     }
 }
